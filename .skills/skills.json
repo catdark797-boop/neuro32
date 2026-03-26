@@ -1,0 +1,10 @@
+{
+  "skills": [
+    {
+      "name": "vercel-deploy",
+      "description": "Деплой на Vercel через GitHub или ручной способ. Решает проблему интерактивного CLI.",
+      "file": ".skills/vercel-deploy.md",
+      "tags": ["vercel", "deployment", "github"]
+    }
+  ]
+}
