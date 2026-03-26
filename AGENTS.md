@@ -1,30 +1,53 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# AGENTS.md — Инструкции для AI агентов
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+## Проект
 
-<!-- VERCEL BEST PRACTICES START -->
-## Best practices for developing on Vercel
+**НЕЙРО32** — Лаборатория ИИ-технологий в Новозыбкове
+- **Основатель**: Денис Степан Марьянович (самозанятый)
+- **Стек**: Next.js 16, React 19, TypeScript, Tailwind CSS 4, CSS-анимации
+- **Деплой**: GitHub Pages (https://catdark797-boop.github.io/neuro32/)
+- **Автодеплой**: при пуше в master через GitHub Actions
 
-These defaults are optimized for AI coding agents (and humans) working on apps that deploy to Vercel.
+---
 
-- Treat Vercel Functions as stateless + ephemeral (no durable RAM/FS, no background daemons), use Blob or marketplace integrations for preserving state
-- Edge Functions (standalone) are deprecated; prefer Vercel Functions
-- Don't start new projects on Vercel KV/Postgres (both discontinued); use Marketplace Redis/Postgres instead
-- Store secrets in Vercel Env Variables; not in git or `NEXT_PUBLIC_*`
-- Provision Marketplace native integrations with `vercel integration add` (CI/agent-friendly)
-- Sync env + project settings with `vercel env pull` / `vercel pull` when you need local/offline parity
-- Use `waitUntil` for post-response work; avoid the deprecated Function `context` parameter
-- Set Function regions near your primary data source; avoid cross-region DB/service roundtrips
-- Tune Fluid Compute knobs (e.g., `maxDuration`, memory/CPU) for long I/O-heavy calls (LLMs, APIs)
-- Use Runtime Cache for fast **regional** caching + tag invalidation (don't treat it as global KV)
-- Use Cron Jobs for schedules; cron runs in UTC and triggers your production URL via HTTP GET
-- Use Vercel Blob for uploads/media; Use Edge Config for small, globally-read config
-- If Enable Deployment Protection is enabled, use a bypass secret to directly access them
-- Add OpenTelemetry via `@vercel/otel` on Node; don't expect OTEL support on the Edge runtime
-- Enable Web Analytics + Speed Insights early
-- Use AI Gateway for model routing, set AI_GATEWAY_API_KEY, using a model string (e.g. 'anthropic/claude-sonnet-4.6'), Gateway is already default in AI SDK
-  needed. Always curl https://ai-gateway.vercel.sh/v1/models first; never trust model IDs from memory
-- For durable agent loops or untrusted code: use Workflow (pause/resume/state) + Sandbox; use Vercel MCP for secure infra access
-<!-- VERCEL BEST PRACTICES END -->
+## Критические правила
+
+1. **Билд после каждого изменения** — `npm run build` должен проходить
+2. **Без фейковых данных** — проект только запущен
+3. **Легальная терминология** — "практические встречи", не "обучение/курсы"
+4. **CSS-анимации** — без GSAP/Framer Motion (SSR-конфликты)
+5. **workdir** — всегда используй, никогда `cd`
+6. **Static export** — `next.config.ts` настроен на `output: "export"` + `basePath: "/neuro32"`
+
+---
+
+## Команды
+
+```bash
+npm run dev    # localhost:3000
+npm run build  # вывод в папку out/
+npm run lint   # ESLint
+```
+
+---
+
+## Структура
+
+```
+src/app/          — 11 страниц + sitemap + robots
+src/components/   — animations, forms, layout, seo, ui
+src/lib/         — utils.ts
+public/           — og-image.svg, favicon.svg, logo.svg
+.github/workflows/deploy.yml — автодеплой
+```
+
+---
+
+## SEO для neuro32.ru
+
+Когда купишь домен neuro32.ru:
+1. Settings на GitHub Pages → Custom domain → neuro32.ru
+2. DNS у регистратора: A-запись на GitHub Pages IP или CNAME
+3. В `next.config.ts` убрать `basePath: "/neuro32"`
+4. Обновить sitemap.ts и robots.ts URL на neuro32.ru
+5. metadataBase в layout.tsx на https://neuro32.ru
