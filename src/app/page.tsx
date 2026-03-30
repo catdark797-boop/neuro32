@@ -1,228 +1,199 @@
 import Link from "next/link";
-import { ArrowRight, Brain, Users, Shield, Target } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { ScrollReveal, ScrollRevealGroup } from "@/components/animations/ScrollReveal";
 
-const features = [
-  {
-    icon: Brain,
-    title: "Современные инструменты",
-    description: "ChatGPT, Claude, Midjourney и другие — всё, что актуально прямо сейчас",
-    color: "cyan",
-  },
-  {
-    icon: Users,
-    title: "Для всех возрастов",
-    description: "Детям, подросткам и взрослым — у каждого своя программа",
-    color: "purple",
-  },
-  {
-    icon: Target,
-    title: "Только практика",
-    description: "70% встречи — работа с реальными задачами и проектами",
-    color: "pink",
-  },
-  {
-    icon: Shield,
-    title: "Кибербезопасность",
-    description: "Защита данных, пароли и безопасность в интернете",
-    color: "cyan",
-  },
+const directions = [
+  { title: "ИИ для детей 7-12 лет", desc: "Нейросети глазами ребёнка, создание цифрового помощника, ИИ-арт, демо-день", price: "от 5,000₽/мес", href: "/neuro32/kids", gradient: "linear-gradient(135deg,#cffafe,#dbeafe)" },
+  { title: "ИИ для подростков 13-17", desc: "Python для ИИ, внутренности нейросетей, компьютерное зрение, языковые модели", price: "от 6,500₽/мес", href: "/neuro32/teens", gradient: "linear-gradient(135deg,#ede9fe,#e0f2fe)" },
+  { title: "ИИ для взрослых 18+", desc: "Языковые модели без интернета, база знаний на ваших данных, автоматизация", price: "от 8,000₽/мес", href: "/neuro32/adults", gradient: "linear-gradient(135deg,#ecfdf5,#dbeafe)" },
+  { title: "Кибербезопасность + ИИ", desc: "Red Team / Blue Team, атаки на ИИ, пентестинг, обнаружение аномалий", price: "от 10,000₽/мес", href: "/neuro32/cyber", gradient: "linear-gradient(135deg,#fef2f2,#fdf4ff)" },
+  { title: "Цифровые решения", desc: "Сайты, боты, контент — цифровые инструменты для бизнеса и самозанятых", price: "от 15,000₽", href: "/neuro32/contacts", gradient: "linear-gradient(135deg,#fff7ed,#eff6ff)" },
+  { title: "Пакеты-траектории", desc: "Системный путь от нуля до эксперта. Семейный старт, Технарь+, Мастер ИИ", price: "от 9,000₽/мес", href: "/neuro32/packages", gradient: "linear-gradient(135deg,#fefce8,#ecfdf5)" },
 ];
 
-const programs = [
-  {
-    title: "Детям 7-12 лет",
-    description: "Через игры и творчество — первые шаги в мире ИИ",
-    href: "/kids",
-    badge: "7-12 лет",
-    color: "cyan",
-  },
-  {
-    title: "Подросткам 13-17 лет",
-    description: "Промптинг, контент и собственный итоговый проект",
-    href: "/teens",
-    badge: "13-17 лет",
-    color: "purple",
-  },
-  {
-    title: "Взрослым 18+",
-    description: "Бизнес-применение и автоматизация рутины",
-    href: "/adults",
-    badge: "18+ лет",
-    color: "pink",
-  },
-  {
-    title: "Кибербезопасность",
-    description: "Защита данных, пароли и безопасность в интернете",
-    href: "/cybersecurity",
-    badge: "для всех",
-    color: "cyan",
-  },
+const whyItems = [
+  { ico: "🖥️", title: "Реальное оборудование, не симуляция", text: "4 рабочих ПК на занятие. Живые языковые модели и нейросети. Демонстрации в реальном времени." },
+  { ico: "🆓", title: "Только бесплатные инструменты", text: "GigaChat, YandexGPT, ChatGPT (бесплатный), Shedevrum, Kandinsky. Российские и международные сервисы." },
+  { ico: "🤝", title: "Партнёрство с АНО «Простые вещи»", text: "Комфортное помещение. Доступные цены. Профессиональная среда для практик." },
+  { ico: "📄", title: "Официально: самозанятый, чек НПД", text: "Договор с клиентом. Чек через «Мой налог». Ставка 4-6%. Работа с физлицами, организациями, ИП." },
+  { ico: "🛤️", title: "Один путь от 7 лет до кибербезопасника", text: "Прогрессивная программа. Целостная траектория развития от ребёнка до специалиста." },
+];
+
+const stats = [
+  { num: "4+", label: "направления" },
+  { num: "7+", label: "лет мин. возраст" },
+  { num: "90", label: "минут сессия" },
+  { num: "0₽", label: "первая встреча" },
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden grid-bg">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-transparent to-[#09090b] pointer-events-none" />
-        
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-32 text-center">
-          <div className="animate-fade-in-up">
-            <Badge className="mb-6">
-              Лаборатория ИИ-технологий в Новозыбкове
-            </Badge>
+    <>
+      {/* ══════ HERO ══════ */}
+      <section className="hero">
+        <div className="relative z-[1]">
+          <div className="hero-eyebrow r-up">
+            <span className="eyedot" />
+            <span className="text-[0.96rem] font-medium text-[var(--ink3)]">Набор открыт · Новозыбков</span>
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 animate-fade-in-up delay-100">
-            <span className="gradient-text">НЕЙРО32</span>
+
+          <h1 className="r-up d1">
+            <span className="h1-plain">Живые</span>
+            <span className="h1-grad">практики ИИ</span>
+            <span className="h1-outline">в Новозыбкове</span>
           </h1>
-          
-          <p className="text-xl md:text-2xl text-[#a1a1aa] max-w-2xl mx-auto mb-4 animate-fade-in-up delay-200">
-            Практические встречи по освоению навыков работы с нейросетями
+
+          <p className="hero-sub r-up d2">
+            Офлайн-сессии по искусственному интеллекту для детей с 7 лет, подростков и взрослых.
+            Нейросети, языковые модели, кибербезопасность.
           </p>
-          
-          <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-10 animate-fade-in-up delay-300">
-            Для детей, подростков и взрослых. Офлайн в Новозыбкове, Брянская область.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-400">
-            <Link href="/programs">
-              <Button size="lg">
-                Смотреть программы
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/contacts">
-              <Button variant="outline" size="lg">
-                Записаться
-              </Button>
-            </Link>
+
+          <div className="flex flex-wrap gap-[7px] mb-7 r-up d3">
+            <span className="chip ch-b">ИИ-практики</span>
+            <span className="chip ch-v">Нейросети</span>
+            <span className="chip ch-c">Python</span>
+            <span className="chip ch-r">Кибербез</span>
+            <span className="chip ch-g">Дети 7+</span>
+          </div>
+
+          <div className="flex gap-3 flex-wrap mb-5 r-up d4">
+            <Link href="/neuro32/contacts" className="btn btn-p">Записаться →</Link>
+            <Link href="/neuro32/packages" className="btn btn-s">О программах</Link>
+          </div>
+
+          <div className="flex gap-2 flex-wrap r-up d5">
+            <a href="tel:+79019769810" className="inline-flex items-center gap-[7px] bg-white/80 border border-[var(--border)] rounded-[9px] px-3 py-2 text-[0.96rem] font-medium text-[var(--ink2)] hover:border-[var(--blue)] hover:text-[var(--blue)] hover:bg-white transition-all backdrop-blur-lg">
+              📞 +7(901)976-98-10
+            </a>
+            <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-[7px] bg-white/80 border border-[var(--border)] rounded-[9px] px-3 py-2 text-[0.96rem] font-medium text-[var(--ink2)] hover:border-[var(--blue)] hover:text-[var(--blue)] hover:bg-white transition-all backdrop-blur-lg">
+              ✈️ @DSM1322
+            </a>
           </div>
         </div>
 
-        {/* Floating decorative elements */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#06B6D4]/5 rounded-full blur-3xl float" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#8B5CF6]/5 rounded-full blur-3xl float" style={{ animationDelay: "2s" }} />
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 relative">
-        <div className="mx-auto max-w-7xl px-6">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-              Что вы получите
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-[#a1a1aa] text-center max-w-2xl mx-auto mb-16">
-              На наших встречах вы освоите практические навыки работы с современными ИИ-инструментами
-            </p>
-          </ScrollReveal>
-
-          <ScrollRevealGroup staggerDelay={100}>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature) => (
-                <Card key={feature.title} className="text-center hover:border-[#06B6D4]/30 transition-colors">
-                  <CardContent className="pt-8">
-                    <div className={`inline-flex p-3 rounded-xl mb-4 ${
-                      feature.color === "cyan" ? "bg-[#06B6D4]/10 text-[#06B6D4]" :
-                      feature.color === "purple" ? "bg-[#8B5CF6]/10 text-[#8B5CF6]" :
-                      "bg-[#EC4899]/10 text-[#EC4899]"
-                    }`}>
-                      <feature.icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-sm text-[#a1a1aa]">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+        {/* Правая часть — фото-блок */}
+        <div className="relative z-[1] hero-r-wrap">
+          <div className="rounded-3xl overflow-hidden shadow-[var(--sh3)] border border-[var(--border)] relative bg-gradient-to-br from-blue-50 to-violet-50 h-[500px] flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-5xl" style={{ background: "var(--g1)" }}>
+                <span className="text-white">Д</span>
+              </div>
+              <p className="font-bold text-lg text-[var(--ink)]" style={{ fontFamily: "var(--font-d)" }}>Денис Степан Марьянович</p>
+              <p className="text-[var(--ink3)] text-sm mt-1">Основатель · Эксперт по ИИ</p>
+              <div className="flex gap-1.5 justify-center mt-4 flex-wrap">
+                {["ИИ", "Нейросети", "Python", "Кибербез"].map((t) => (
+                  <span key={t} className="bg-white/80 border border-white/40 rounded-md px-2 py-1 text-xs font-semibold text-[var(--ink2)]">{t}</span>
+                ))}
+              </div>
             </div>
-          </ScrollRevealGroup>
+
+            {/* Плавающие пиллы */}
+            <div className="fpill absolute -top-4 -right-5 z-10" style={{ animation: "fp 4s ease-in-out infinite" }}>
+              <div className="fp-label">Возраст</div>
+              <div className="fp-val">7+</div>
+            </div>
+            <div className="fpill absolute bottom-28 -right-6 z-10" style={{ animation: "fp 4s ease-in-out infinite 1.6s" }}>
+              <div className="fp-label">На занятие</div>
+              <div className="fp-val">4 ПК</div>
+            </div>
+            <div className="fpill absolute -bottom-2 -left-5 z-10" style={{ animation: "fp 4s ease-in-out infinite .9s" }}>
+              <div className="fp-label">Первая встреча</div>
+              <div className="fp-val">бесплатно</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Programs Section */}
-      <section className="py-24 bg-[#18181b]">
-        <div className="mx-auto max-w-7xl px-6">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-              Программы для вас
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-[#a1a1aa] text-center max-w-2xl mx-auto mb-16">
-              Выберите направление, подходящее вашему возрасту и целям
-            </p>
-          </ScrollReveal>
+      {/* ══════ STATS ══════ */}
+      <div className="stats-row">
+        {stats.map((s) => (
+          <div key={s.label} className="stat-box">
+            <span className="stat-num">{s.num}</span>
+            <span className="stat-label">{s.label}</span>
+          </div>
+        ))}
+      </div>
 
-          <ScrollRevealGroup staggerDelay={100}>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {programs.map((program) => (
-                <Card key={program.href} variant="glass" className="group">
-                  <CardContent className="pt-6">
-                    <Badge className="mb-3 text-xs">{program.badge}</Badge>
-                    <h3 className="text-lg font-semibold mb-2 group-hover:text-[#06B6D4] transition-colors">
-                      {program.title}
-                    </h3>
-                    <p className="text-[#a1a1aa] text-sm mb-4">
-                      {program.description}
-                    </p>
-                    <Link href={program.href}>
-                      <Button variant="outline" size="sm" className="w-full group-hover:border-[#06B6D4]">
-                        Подробнее
-                        <ArrowRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollRevealGroup>
+      {/* ══════ НАПРАВЛЕНИЯ ══════ */}
+      <section className="S">
+        <div className="s-tag r-up">НАПРАВЛЕНИЯ</div>
+        <h2 className="s-h2 r-up d1">Выберите <span className="ac">свой путь</span> в ИИ</h2>
 
-          <ScrollReveal delay={300}>
-            <div className="text-center mt-12">
-              <Link href="/programs">
-                <Button variant="secondary">
-                  Все программы
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="mx-auto max-w-4xl px-6 text-center relative z-10">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Готовы освоить <span className="gradient-text">ИИ-технологии</span>?
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-[#a1a1aa] text-lg mb-8 max-w-2xl mx-auto">
-              Запишитесь на первую встречу и начните свой путь в мир искусственного интеллекта
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={200}>
-            <Link href="/contacts">
-              <Button size="lg" className="glow-cyan">
-                Записаться на встречу
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+        <div className="dir-grid">
+          {directions.map((d, i) => (
+            <Link key={d.title} href={d.href} className={`card dc r-up d${i + 1}`}>
+              <div className="card-glow" />
+              <div className="dc-illus" style={{ background: d.gradient }}>
+                <span className="text-4xl opacity-60">
+                  {["🧒", "🧑‍💻", "👨‍💼", "🛡️", "💡", "📦"][i]}
+                </span>
+              </div>
+              <div className="dc-body">
+                <div className="dc-title">{d.title}</div>
+                <div className="dc-desc">{d.desc}</div>
+                <div className="dc-footer">
+                  <span className="dc-price">{d.price}</span>
+                  <span className="dc-arr">→</span>
+                </div>
+              </div>
             </Link>
-          </ScrollReveal>
-        </div>
-        
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#06B6D4]/5 rounded-full blur-3xl" />
+          ))}
         </div>
       </section>
-    </div>
+
+      {/* ══════ ПОЧЕМУ МЫ ══════ */}
+      <section className="S" style={{ background: "var(--bg2)" }}>
+        <div className="s-tag r-up">ПОЧЕМУ МЫ</div>
+        <h2 className="s-h2 r-up d1">Почему выбирают <span className="ac">Нейро 32</span></h2>
+
+        <div className="why-grid">
+          <div className="flex flex-col gap-0">
+            {whyItems.map((w, i) => (
+              <div key={i} className={`why-item r-up d${i + 1}`}>
+                <div className="why-ico">{w.ico}</div>
+                <div>
+                  <div className="why-title">{w.title}</div>
+                  <div className="why-text">{w.text}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="why-vis r-right">
+            <div className="text-lg font-bold mb-6" style={{ fontFamily: "var(--font-d)" }}>Нейро 32 в цифрах</div>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { v: "4+", l: "Направления" },
+                { v: "90 мин", l: "Длительность" },
+                { v: "4 ПК", l: "На занятие" },
+                { v: "0₽", l: "Первая встреча" },
+              ].map((s) => (
+                <div key={s.l} className="bg-white/15 rounded-xl p-4 text-center backdrop-blur-sm">
+                  <div className="text-2xl font-black" style={{ fontFamily: "var(--font-d)" }}>{s.v}</div>
+                  <div className="text-sm text-white/70 mt-1">{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 pt-6 border-t border-white/20">
+              <p className="text-white/80 text-[0.95rem] leading-relaxed">
+                Единственная лаборатория ИИ в Новозыбкове. Реальное оборудование, живые нейросети, только бесплатные инструменты.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════ CTA ══════ */}
+      <section className="S text-center text-white" style={{ background: "var(--g1)" }}>
+        <h2 className="text-3xl md:text-5xl font-black mb-5 r-up" style={{ fontFamily: "var(--font-d)", letterSpacing: "-.03em" }}>
+          Начните путь в ИИ сегодня
+        </h2>
+        <p className="text-lg text-white/80 mb-8 max-w-lg mx-auto r-up d1">
+          Первая встреча — бесплатно. Запишитесь и убедитесь сами.
+        </p>
+        <div className="flex gap-3 justify-center flex-wrap r-up d2">
+          <Link href="/neuro32/contacts" className="btn btn-w">Записаться бесплатно</Link>
+          <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="btn btn-outline-w">Связаться в Telegram</a>
+        </div>
+      </section>
+    </>
   );
 }

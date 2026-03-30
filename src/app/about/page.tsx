@@ -1,178 +1,72 @@
 import Link from "next/link";
-import { ArrowRight, Brain, Users, Target, Award } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { ScrollReveal, ScrollRevealGroup } from "@/components/animations/ScrollReveal";
+import type { Metadata } from "next";
 
-const values = [
-  {
-    icon: Brain,
-    title: "Практика прежде всего",
-    description: "Каждая встреча — это реальные задачи и проекты, а не скучная теория",
-  },
-  {
-    icon: Users,
-    title: "Индивидуальный подход",
-    description: "Учитываем возраст, интересы и цели каждого участника",
-  },
-  {
-    icon: Target,
-    title: "Актуальные знания",
-    description: "Работаем с современными инструментами: ChatGPT, Claude, Midjourney и другие",
-  },
-  {
-    icon: Award,
-    title: "Без лицензий",
-    description: "Мы практикуем навыки, а не образовательные услуги. Всё легально.",
-  },
-];
-
-export const metadata = {
-  title: "О лаборатории",
-  description: "НЕЙРО32 — практические встречи по освоению навыков работы с нейросетями в Новозыбкове",
-};
+export const metadata: Metadata = { title: "Об эксперте" };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6">
-          <ScrollReveal>
-            <Badge variant="accent" className="mb-6">О лаборатории</Badge>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              НЕЙРО32 — Лаборатория <span className="gradient-text">ИИ-технологий</span>
+    <>
+      <section className="S" style={{ background: "var(--g-hero)" }}>
+        <div className="why-grid">
+          <div>
+            <div className="s-tag r-up">ОБ ЭКСПЕРТЕ</div>
+            <h1 className="s-h2 r-up d1" style={{ marginBottom: "20px" }}>
+              Денис <span className="ac">Степан Марьянович</span>
             </h1>
-          </ScrollReveal>
-          <ScrollReveal delay={200}>
-            <p className="text-xl text-[#a1a1aa] max-w-3xl mb-8">
-              Мы проводим практические встречи по освоению навыков работы с нейросетями и ИИ-инструментами. 
-              Наша цель — сделать передовые технологии доступными для всех жителей Новозыбкова и Брянской области.
+            <p className="text-lg text-[var(--ink3)] leading-relaxed mb-6 r-up d2">
+              Основатель лаборатории «Нейро 32». Практик в области искусственного интеллекта,
+              нейросетей и кибербезопасности. Самозанятый, работает по договору с чеком НПД.
             </p>
-          </ScrollReveal>
-          <ScrollReveal delay={300}>
-            <Link href="/contacts">
-              <Button>
-                Присоединиться
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </ScrollReveal>
-        </div>
-      </section>
+            <div className="flex gap-2 flex-wrap mb-6 r-up d3">
+              <span className="chip ch-b">ИИ-эксперт</span>
+              <span className="chip ch-v">Нейросети</span>
+              <span className="chip ch-c">Python</span>
+              <span className="chip ch-r">Кибербезопасность</span>
+              <span className="chip ch-g">Самозанятый</span>
+            </div>
+            <div className="flex gap-3 flex-wrap r-up d4">
+              <Link href="/neuro32/contacts" className="btn btn-p">Связаться →</Link>
+              <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="btn btn-s">Telegram</a>
+            </div>
+          </div>
 
-      {/* Mission */}
-      <section className="py-24 bg-[#18181b]">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <ScrollReveal>
-              <div>
-                <h2 className="text-3xl font-bold mb-6">Наша миссия</h2>
-                <p className="text-[#a1a1aa] text-lg leading-relaxed mb-6">
-                  Искусственный интеллект меняет мир. Мы верим, что каждый может научиться использовать 
-                  его возможности — от школьника до предпринимателя.
-                </p>
-                <p className="text-[#a1a1aa] text-lg leading-relaxed mb-6">
-                  НЕЙРО32 — это место, где технологии встречаются с практикой. Мы не читаем лекции — 
-                  мы решаем реальные задачи и создаём проекты.
-                </p>
-                <p className="text-[#a1a1aa] text-lg leading-relaxed">
-                  Основатель лаборатории — Денис Степан Марьянович, самозанятый практик с опытом 
-                  работы с ИИ-инструментами.
-                </p>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={200}>
-              <Card variant="glass" className="p-8">
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-[#06B6D4]/10 rounded-lg">
-                      <Brain className="h-5 w-5 text-[#06B6D4]" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Новозыбков, Брянская область</h4>
-                      <p className="text-sm text-[#a1a1aa]">Офлайн-встречи для жителей города и области</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-[#8B5CF6]/10 rounded-lg">
-                      <Users className="h-5 w-5 text-[#8B5CF6]" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Для всех возрастов</h4>
-                      <p className="text-sm text-[#a1a1aa]">Дети, подростки и взрослые — у каждого своя программа</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-[#EC4899]/10 rounded-lg">
-                      <Target className="h-5 w-5 text-[#EC4899]" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Практические навыки</h4>
-                      <p className="text-sm text-[#a1a1aa]">Теория + практика на каждой встрече</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </ScrollReveal>
+          <div className="why-vis r-right">
+            <div className="text-center mb-6">
+              <div className="w-24 h-24 rounded-full mx-auto mb-4 bg-white/20 flex items-center justify-center text-5xl">Д</div>
+              <div className="text-xl font-bold" style={{ fontFamily: "var(--font-d)" }}>Денис С.М.</div>
+              <div className="text-white/70 mt-1">Основатель · Эксперт</div>
+            </div>
+            <div className="space-y-3 text-white/80 text-[0.95rem]">
+              <div className="flex items-center gap-2">📍 Новозыбков, Брянская обл.</div>
+              <div className="flex items-center gap-2">📞 +7(901)976-98-10</div>
+              <div className="flex items-center gap-2">✈️ @DSM1322</div>
+              <div className="flex items-center gap-2">📧 d3stemar@yandex.ru</div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold text-center mb-4">Наши принципы</h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-[#a1a1aa] text-center max-w-2xl mx-auto mb-16">
-              То, что отличает НЕЙРО32 от других
-            </p>
-          </ScrollReveal>
-
-          <ScrollRevealGroup staggerDelay={100}>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {values.map((value) => (
-                <Card key={value.title}>
-                  <CardContent className="pt-8 text-center">
-                    <div className="inline-flex p-3 bg-[#06B6D4]/10 rounded-xl mb-4">
-                      <value.icon className="h-6 w-6 text-[#06B6D4]" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
-                    <p className="text-sm text-[#a1a1aa]">{value.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
+      <section className="S">
+        <div className="s-tag r-up">ПРИНЦИПЫ</div>
+        <h2 className="s-h2 r-up d1">Как <span className="ac">работает</span> лаборатория</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[
+            { ico: "🎯", title: "Практика, не теория", desc: "Каждая встреча — руки на клавиатуре. Реальные задачи, живые нейросети, настоящие результаты." },
+            { ico: "🆓", title: "Только бесплатные инструменты", desc: "Никаких платных подписок. GigaChat, YandexGPT, ChatGPT free, Kandinsky, Shedevrum." },
+            { ico: "🤝", title: "Индивидуальный подход", desc: "Максимум 4 человека на встрече. Каждый работает на своём ПК, получает внимание эксперта." },
+            { ico: "📄", title: "Всё официально", desc: "Договор, чек НПД, прозрачные условия. Работа с физлицами, организациями и самозанятыми." },
+            { ico: "🔒", title: "Безопасность данных", desc: "Никакие персональные данные не отправляются в интернет без согласия. Локальные модели для конфиденциальной работы." },
+            { ico: "🚀", title: "Актуальные технологии", desc: "Программа обновляется каждый месяц. Всё, что актуально в мире ИИ — попадает на занятия." },
+          ].map((item, i) => (
+            <div key={i} className={`card p-6 r-up d${Math.min(i + 1, 6)}`}>
+              <div className="card-glow" />
+              <div className="text-3xl mb-3">{item.ico}</div>
+              <h3 className="text-lg font-bold text-[var(--ink)] mb-2" style={{ fontFamily: "var(--font-d)" }}>{item.title}</h3>
+              <p className="text-[var(--ink3)] text-[0.95rem] leading-relaxed">{item.desc}</p>
             </div>
-          </ScrollRevealGroup>
+          ))}
         </div>
       </section>
-
-      {/* CTA */}
-      <section className="py-24 bg-[#18181b]">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <ScrollReveal>
-            <h2 className="text-3xl font-bold mb-6">Хотите узнать больше?</h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <p className="text-[#a1a1aa] text-lg mb-8">
-              Свяжитесь с нами, чтобы обсудить ваши цели и подобрать программу
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={200}>
-            <Link href="/contacts">
-              <Button size="lg">
-                Связаться с нами
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </ScrollReveal>
-        </div>
-      </section>
-    </div>
+    </>
   );
 }
