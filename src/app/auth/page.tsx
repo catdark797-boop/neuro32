@@ -27,7 +27,7 @@ export default function AuthPage() {
     if (result?.error) {
       setError("Неверный email или пароль");
     } else {
-      router.push("/neuro32/dashboard");
+      router.push("/dashboard");
     }
   }
 
@@ -65,7 +65,7 @@ export default function AuthPage() {
         password: form.get("password") as string,
         redirect: false,
       });
-      router.push("/neuro32/dashboard");
+      router.push("/dashboard");
     } catch {
       setError("Ошибка сервера");
     }

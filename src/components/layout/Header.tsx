@@ -6,16 +6,16 @@ import { useSession } from "next-auth/react";
 import Logo from "@/components/ui/Logo";
 
 const navLinks = [
-  { href: "/neuro32", label: "Главная" },
-  { href: "/neuro32/about", label: "Эксперт" },
-  { href: "/neuro32/kids", label: "Детям" },
-  { href: "/neuro32/teens", label: "Подросткам" },
-  { href: "/neuro32/adults", label: "Взрослым" },
-  { href: "/neuro32/cyber", label: "Кибербез" },
-  { href: "/neuro32/packages", label: "Пакеты" },
-  { href: "/neuro32/safety", label: "Безопасность" },
-  { href: "/neuro32/reviews", label: "Отзывы" },
-  { href: "/neuro32/contacts", label: "Контакты" },
+  { href: "/", label: "Главная" },
+  { href: "/about", label: "Эксперт" },
+  { href: "/kids", label: "Детям" },
+  { href: "/teens", label: "Подросткам" },
+  { href: "/adults", label: "Взрослым" },
+  { href: "/cyber", label: "Кибербез" },
+  { href: "/packages", label: "Пакеты" },
+  { href: "/safety", label: "Безопасность" },
+  { href: "/reviews", label: "Отзывы" },
+  { href: "/contacts", label: "Контакты" },
 ];
 
 export function Header() {
@@ -40,7 +40,7 @@ export function Header() {
         style={{ height: "var(--nav-h)", borderBottom: "1px solid var(--border)" }}
       >
         {/* Логотип */}
-        <Link href="/neuro32" className="flex items-center gap-2.5 font-[var(--font-d)] font-black text-[var(--ink)]" style={{ fontFamily: "var(--font-d)" }}>
+        <Link href="/" className="flex items-center gap-2.5 font-[var(--font-d)] font-black text-[var(--ink)]" style={{ fontFamily: "var(--font-d)" }}>
           <Logo size={34} />
           <span>НЕЙРО <span className="gradient-text">32</span></span>
         </Link>
@@ -64,15 +64,15 @@ export function Header() {
             <Link
               href={
                 (session.user as Record<string, unknown>)?.role === "admin"
-                  ? "/neuro32/admin"
-                  : "/neuro32/dashboard"
+                  ? "/admin"
+                  : "/dashboard"
               }
               className="btn btn-s !py-2 !px-4 !text-sm"
             >
               {(session.user as Record<string, unknown>)?.role === "admin" ? "Админка" : "Кабинет"}
             </Link>
           ) : null}
-          <Link href="/neuro32/contacts" className="btn btn-p !py-2 !px-4 !text-sm shadow-[0_4px_14px_rgba(37,99,235,.35)]">
+          <Link href="/contacts" className="btn btn-p !py-2 !px-4 !text-sm shadow-[0_4px_14px_rgba(37,99,235,.35)]">
             Записаться →
           </Link>
         </div>
@@ -109,7 +109,7 @@ export function Header() {
         <div className="h-px bg-[var(--border)] my-2" />
         {session && (
           <Link
-            href={(session.user as Record<string, unknown>)?.role === "admin" ? "/neuro32/admin" : "/neuro32/dashboard"}
+            href={(session.user as Record<string, unknown>)?.role === "admin" ? "/admin" : "/dashboard"}
             className="flex items-center justify-between px-[18px] py-4 rounded-xl text-[var(--ink2)] text-[1.06rem] font-semibold hover:bg-[var(--bg2)] transition-all"
             onClick={() => setMobileOpen(false)}
           >
@@ -117,7 +117,7 @@ export function Header() {
           </Link>
         )}
         <Link
-          href="/neuro32/contacts"
+          href="/contacts"
           className="text-center py-4 rounded-xl font-bold text-white mt-3"
           style={{ background: "var(--g1)", boxShadow: "0 4px 14px rgba(37,99,235,.3)" }}
           onClick={() => setMobileOpen(false)}

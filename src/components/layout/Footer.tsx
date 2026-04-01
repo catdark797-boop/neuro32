@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-5">
           {/* Бренд */}
           <div className="lg:col-span-2">
-            <Link href="/neuro32" className="flex items-center gap-2.5 mb-4" style={{ fontFamily: "var(--font-d)" }}>
+            <Link href="/" className="flex items-center gap-2.5 mb-4" style={{ fontFamily: "var(--font-d)" }}>
               <Logo size={30} />
               <span className="font-black text-[var(--ink)]">НЕЙРО <span className="gradient-text">32</span></span>
             </Link>
@@ -23,11 +23,11 @@ export function Footer() {
             <h3 className="text-sm font-bold text-[var(--ink)] mb-4 uppercase tracking-wider">Программы</h3>
             <ul className="space-y-2.5">
               {[
-                { href: "/neuro32/kids", label: "Детям 7-12" },
-                { href: "/neuro32/teens", label: "Подросткам 13-17" },
-                { href: "/neuro32/adults", label: "Взрослым 18+" },
-                { href: "/neuro32/cyber", label: "Кибербезопасность" },
-                { href: "/neuro32/packages", label: "Пакеты-траектории" },
+                { href: "/kids", label: "Детям 7-12" },
+                { href: "/teens", label: "Подросткам 13-17" },
+                { href: "/adults", label: "Взрослым 18+" },
+                { href: "/cyber", label: "Кибербезопасность" },
+                { href: "/packages", label: "Пакеты-траектории" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-[0.95rem] text-[var(--ink3)] hover:text-[var(--blue)] transition-colors">
@@ -43,10 +43,10 @@ export function Footer() {
             <h3 className="text-sm font-bold text-[var(--ink)] mb-4 uppercase tracking-wider">О проекте</h3>
             <ul className="space-y-2.5">
               {[
-                { href: "/neuro32/about", label: "Эксперт" },
-                { href: "/neuro32/reviews", label: "Отзывы" },
-                { href: "/neuro32/safety", label: "Безопасность" },
-                { href: "/neuro32/contacts", label: "Контакты" },
+                { href: "/about", label: "Эксперт" },
+                { href: "/reviews", label: "Отзывы" },
+                { href: "/safety", label: "Безопасность" },
+                { href: "/contacts", label: "Контакты" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-[0.95rem] text-[var(--ink3)] hover:text-[var(--blue)] transition-colors">

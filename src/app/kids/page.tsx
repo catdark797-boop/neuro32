@@ -31,7 +31,7 @@ export default function KidsPage() {
             <span className="chip ch-c">4 ПК на занятие</span>
             <span className="chip ch-a">Первая встреча бесплатно</span>
           </div>
-          <Link href="/neuro32/contacts" className="btn btn-p r-up d4">Записать ребёнка →</Link>
+          <Link href="/contacts" className="btn btn-p r-up d4">Записать ребёнка →</Link>
         </div>
       </section>
 
@@ -54,7 +54,7 @@ export default function KidsPage() {
       <section className="S text-center text-white" style={{ background: "var(--g1)" }}>
         <h2 className="text-3xl font-black mb-4 r-up" style={{ fontFamily: "var(--font-d)" }}>Результат: ребёнок-исследователь</h2>
         <p className="text-white/80 text-lg mb-8 max-w-lg mx-auto r-up d1">Ребёнок понимает основы ИИ, умеет работать с нейросетями и готов к следующему уровню.</p>
-        <Link href="/neuro32/contacts" className="btn btn-w r-up d2">Записать ребёнка бесплатно</Link>
+        <Link href="/contacts" className="btn btn-w r-up d2">Записать ребёнка бесплатно</Link>
       </section>
     </>
   );

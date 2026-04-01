@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { OrganizationSchema, LocalBusinessSchema } from "@/components/seo/SchemaOrg";
 import SessionProvider from "@/components/providers/SessionProvider";
 import { AIChatWidget } from "@/components/ai/AIChatWidget";
+import { ScrollReveal } from "@/components/animations/ScrollReveal";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://catdark797-boop.github.io/neuro32"),
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
           <AIChatWidget />
+          <ScrollReveal />
         </SessionProvider>
       </body>
     </html>

@@ -25,7 +25,7 @@ export default function AboutPage() {
               <span className="chip ch-g">Самозанятый</span>
             </div>
             <div className="flex gap-3 flex-wrap r-up d4">
-              <Link href="/neuro32/contacts" className="btn btn-p">Связаться →</Link>
+              <Link href="/contacts" className="btn btn-p">Связаться →</Link>
               <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="btn btn-s">Telegram</a>
             </div>
           </div>

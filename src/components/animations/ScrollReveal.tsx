@@ -1,70 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 
-interface ScrollRevealProps {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}
-
-export function ScrollReveal({ children, className = "", delay = 0 }: ScrollRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
+/**
+ * Global scroll-reveal observer.
+ * Adds .vis class to elements with .r-up, .r-left, .r-right, .r-scale, .r-fade
+ * when they enter the viewport.
+ */
+export function ScrollReveal() {
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const selectors = ".r-up, .r-left, .r-right, .r-scale, .r-fade";
+
+    function observeAll() {
+      const elements = document.querySelectorAll(selectors);
+      elements.forEach((el) => {
+        if (!el.classList.contains("vis")) {
+          observer.observe(el);
+        }
+      });
+    }
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(el);
-        }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("vis");
+            observer.unobserve(entry.target);
+          }
+        });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
     );
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    // Initial observation
+    observeAll();
+
+    // Re-observe on route changes (MutationObserver catches new DOM nodes)
+    const mutationObs = new MutationObserver(() => {
+      observeAll();
+    });
+    mutationObs.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObs.disconnect();
+    };
   }, []);
 
-  return (
-    <div
-      ref={ref}
-      className={`scroll-reveal ${visible ? "visible" : ""} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
-
-interface ScrollRevealGroupProps {
-  children: React.ReactNode;
-  className?: string;
-  staggerDelay?: number;
-}
-
-export function ScrollRevealGroup({ children, className = "", staggerDelay = 100 }: ScrollRevealGroupProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const items = el.querySelectorAll(".scroll-reveal");
-    items.forEach((item, i) => {
-      setTimeout(() => {
-        item.classList.add("visible");
-      }, i * staggerDelay);
-    });
-  }, [staggerDelay]);
-
-  return (
-    <div ref={ref} className={className}>
-      {children}
-    </div>
-  );
+  return null;
 }

@@ -79,7 +79,7 @@ export default function PackagesPage() {
         </div>
 
         <div className="text-center mt-12">
-          <Link href="/neuro32/contacts" className="btn btn-p">Выбрать пакет →</Link>
+          <Link href="/contacts" className="btn btn-p">Выбрать пакет →</Link>
         </div>
       </section>
     </>

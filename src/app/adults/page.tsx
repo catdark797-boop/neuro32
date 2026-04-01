@@ -30,7 +30,7 @@ export default function AdultsPage() {
             <span className="chip ch-c">Локальные LLM</span>
             <span className="chip ch-a">Первая встреча бесплатно</span>
           </div>
-          <Link href="/neuro32/contacts" className="btn btn-p r-up d4">Записаться →</Link>
+          <Link href="/contacts" className="btn btn-p r-up d4">Записаться →</Link>
         </div>
       </section>
 
@@ -53,7 +53,7 @@ export default function AdultsPage() {
       <section className="S text-center text-white" style={{ background: "var(--g1)" }}>
         <h2 className="text-3xl font-black mb-4 r-up" style={{ fontFamily: "var(--font-d)" }}>Результат: ИИ работает на вас</h2>
         <p className="text-white/80 text-lg mb-8 max-w-lg mx-auto r-up d1">Вы владеете арсеналом ИИ-инструментов и умеете применять их в работе и бизнесе.</p>
-        <Link href="/neuro32/contacts" className="btn btn-w r-up d2">Записаться бесплатно</Link>
+        <Link href="/contacts" className="btn btn-w r-up d2">Записаться бесплатно</Link>
       </section>
     </>
   );

@@ -31,7 +31,7 @@ export default function CyberPage() {
             <span className="chip ch-c">Blue Team</span>
             <span className="chip ch-a">Первая встреча бесплатно</span>
           </div>
-          <Link href="/neuro32/contacts" className="btn btn-p r-up d4">Записаться →</Link>
+          <Link href="/contacts" className="btn btn-p r-up d4">Записаться →</Link>
         </div>
       </section>
 
@@ -57,7 +57,7 @@ export default function CyberPage() {
       <section className="S text-center text-white" style={{ background: "var(--g4)" }}>
         <h2 className="text-3xl font-black mb-4 r-up" style={{ fontFamily: "var(--font-d)" }}>Результат: специалист по защите ИИ</h2>
         <p className="text-white/80 text-lg mb-8 max-w-lg mx-auto r-up d1">Вы умеете атаковать и защищать ИИ-системы, проводить аудит безопасности.</p>
-        <Link href="/neuro32/contacts" className="btn btn-w r-up d2">Записаться бесплатно</Link>
+        <Link href="/contacts" className="btn btn-w r-up d2">Записаться бесплатно</Link>
       </section>
     </>
   );

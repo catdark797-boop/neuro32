@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 const directions = [
-  { title: "ИИ для детей 7-12 лет", desc: "Нейросети глазами ребёнка, создание цифрового помощника, ИИ-арт, демо-день", price: "от 5,000₽/мес", href: "/neuro32/kids", gradient: "linear-gradient(135deg,#cffafe,#dbeafe)" },
-  { title: "ИИ для подростков 13-17", desc: "Python для ИИ, внутренности нейросетей, компьютерное зрение, языковые модели", price: "от 6,500₽/мес", href: "/neuro32/teens", gradient: "linear-gradient(135deg,#ede9fe,#e0f2fe)" },
-  { title: "ИИ для взрослых 18+", desc: "Языковые модели без интернета, база знаний на ваших данных, автоматизация", price: "от 8,000₽/мес", href: "/neuro32/adults", gradient: "linear-gradient(135deg,#ecfdf5,#dbeafe)" },
-  { title: "Кибербезопасность + ИИ", desc: "Red Team / Blue Team, атаки на ИИ, пентестинг, обнаружение аномалий", price: "от 10,000₽/мес", href: "/neuro32/cyber", gradient: "linear-gradient(135deg,#fef2f2,#fdf4ff)" },
-  { title: "Цифровые решения", desc: "Сайты, боты, контент — цифровые инструменты для бизнеса и самозанятых", price: "от 15,000₽", href: "/neuro32/contacts", gradient: "linear-gradient(135deg,#fff7ed,#eff6ff)" },
-  { title: "Пакеты-траектории", desc: "Системный путь от нуля до эксперта. Семейный старт, Технарь+, Мастер ИИ", price: "от 9,000₽/мес", href: "/neuro32/packages", gradient: "linear-gradient(135deg,#fefce8,#ecfdf5)" },
+  { title: "ИИ для детей 7-12 лет", desc: "Нейросети глазами ребёнка, создание цифрового помощника, ИИ-арт, демо-день", price: "от 5,000₽/мес", href: "/kids", gradient: "linear-gradient(135deg,#cffafe,#dbeafe)" },
+  { title: "ИИ для подростков 13-17", desc: "Python для ИИ, внутренности нейросетей, компьютерное зрение, языковые модели", price: "от 6,500₽/мес", href: "/teens", gradient: "linear-gradient(135deg,#ede9fe,#e0f2fe)" },
+  { title: "ИИ для взрослых 18+", desc: "Языковые модели без интернета, база знаний на ваших данных, автоматизация", price: "от 8,000₽/мес", href: "/adults", gradient: "linear-gradient(135deg,#ecfdf5,#dbeafe)" },
+  { title: "Кибербезопасность + ИИ", desc: "Red Team / Blue Team, атаки на ИИ, пентестинг, обнаружение аномалий", price: "от 10,000₽/мес", href: "/cyber", gradient: "linear-gradient(135deg,#fef2f2,#fdf4ff)" },
+  { title: "Цифровые решения", desc: "Сайты, боты, контент — цифровые инструменты для бизнеса и самозанятых", price: "от 15,000₽", href: "/contacts", gradient: "linear-gradient(135deg,#fff7ed,#eff6ff)" },
+  { title: "Пакеты-траектории", desc: "Системный путь от нуля до эксперта. Семейный старт, Технарь+, Мастер ИИ", price: "от 9,000₽/мес", href: "/packages", gradient: "linear-gradient(135deg,#fefce8,#ecfdf5)" },
 ];
 
 const whyItems = [
@@ -55,8 +55,8 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-3 flex-wrap mb-5 r-up d4">
-            <Link href="/neuro32/contacts" className="btn btn-p">Записаться →</Link>
-            <Link href="/neuro32/packages" className="btn btn-s">О программах</Link>
+            <Link href="/contacts" className="btn btn-p">Записаться →</Link>
+            <Link href="/packages" className="btn btn-s">О программах</Link>
           </div>
 
           <div className="flex gap-2 flex-wrap r-up d5">
@@ -190,7 +190,7 @@ export default function HomePage() {
           Первая встреча — бесплатно. Запишитесь и убедитесь сами.
         </p>
         <div className="flex gap-3 justify-center flex-wrap r-up d2">
-          <Link href="/neuro32/contacts" className="btn btn-w">Записаться бесплатно</Link>
+          <Link href="/contacts" className="btn btn-w">Записаться бесплатно</Link>
           <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="btn btn-outline-w">Связаться в Telegram</a>
         </div>
       </section>

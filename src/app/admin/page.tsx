@@ -39,7 +39,7 @@ export default function AdminPage() {
   }
 
   if (!session || (session.user as Record<string, unknown>)?.role !== "admin") {
-    router.push("/neuro32/auth");
+    router.push("/auth");
     return null;
   }
 

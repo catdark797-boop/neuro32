@@ -26,7 +26,7 @@ export default function DashboardPage() {
   }
 
   if (!session) {
-    router.push("/neuro32/auth");
+    router.push("/auth");
     return null;
   }
 
@@ -56,7 +56,7 @@ export default function DashboardPage() {
 
         <div className="mt-auto pt-4 border-t border-[var(--border)]">
           {(user.role as string) === "admin" && (
-            <Link href="/neuro32/admin" className="dash-nav-item text-[var(--blue)]">🔧 Админ-панель</Link>
+            <Link href="/admin" className="dash-nav-item text-[var(--blue)]">🔧 Админ-панель</Link>
           )}
           <button onClick={() => signOut({ callbackUrl: "/neuro32" })} className="dash-nav-item text-[var(--rose)]">
             🚪 Выйти
@@ -88,8 +88,8 @@ export default function DashboardPage() {
             <div className="dash-card">
               <h3 className="font-bold text-[var(--ink)] mb-3" style={{ fontFamily: "var(--font-d)" }}>Быстрые действия</h3>
               <div className="flex gap-3 flex-wrap">
-                <Link href="/neuro32/contacts" className="btn btn-p !text-sm !py-2 !px-4">Записаться на встречу</Link>
-                <Link href="/neuro32/packages" className="btn btn-s !text-sm !py-2 !px-4">Выбрать пакет</Link>
+                <Link href="/contacts" className="btn btn-p !text-sm !py-2 !px-4">Записаться на встречу</Link>
+                <Link href="/packages" className="btn btn-s !text-sm !py-2 !px-4">Выбрать пакет</Link>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
               <div className="text-4xl mb-4">📅</div>
               <h3 className="text-lg font-bold text-[var(--ink)] mb-2" style={{ fontFamily: "var(--font-d)" }}>Нет запланированных занятий</h3>
               <p className="text-[var(--ink3)] mb-4">Запишитесь на встречу, и она появится здесь.</p>
-              <Link href="/neuro32/contacts" className="btn btn-p !text-sm">Записаться →</Link>
+              <Link href="/contacts" className="btn btn-p !text-sm">Записаться →</Link>
             </div>
           </div>
         )}
