@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ═══════════════════════════════════════
+// ПОЛЬЗОВАТЕЛИ И АВТОРИЗАЦИЯ
+// ═══════════════════════════════════════
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phone         String?
+  passwordHash  String?
+  firstName     String
+  lastName      String?
+  telegram      String?
+  avatarUrl     String?
+  bio           String?
+  role          String    @default("user") // user | admin | moderator
+  direction     String?   // kids | teens | adults | cyber
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reviews       Review[]
+  bookings      Booking[]
+  payments      Payment[]
+  userSessions  UserSession[]
+  chatMessages  ChatMessage[]
+  notifications Notification[]
+}
+
+// ═══════════════════════════════════════
+// ОТЗЫВЫ
+// ═══════════════════════════════════════
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  name      String
+  role      String?
+  direction String?
+  rating    Int      @default(5)
+  text      String
+  approved  Boolean  @default(false)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ═══════════════════════════════════════
+// ЗАЯВКИ НА ЗАПИСЬ
+// ═══════════════════════════════════════
+
+model Booking {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  direction String
+  format    String?
+  message   String?
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ═══════════════════════════════════════
+// РАСПИСАНИЕ СЕССИЙ
+// ═══════════════════════════════════════
+
+model Session {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  direction   String
+  date        DateTime
+  duration    Int      @default(90)
+  maxSlots    Int      @default(4)
+  location    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  userSessions UserSession[]
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id])
+  status    String   @default("booked")
+  createdAt DateTime @default(now())
+
+  @@unique([userId, sessionId])
+}
+
+// ═══════════════════════════════════════
+// ПЛАТЕЖИ
+// ═══════════════════════════════════════
+
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int
+  currency  String   @default("RUB")
+  method    String?
+  status    String   @default("pending")
+  plan      String?
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// ═══════════════════════════════════════
+// ИИ ЧАТ
+// ═══════════════════════════════════════
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  chatId    String   @default("default")
+  role      String
+  content   String
+  metadata  String?
+  createdAt DateTime @default(now())
+}
+
+// ═══════════════════════════════════════
+// УВЕДОМЛЕНИЯ
+// ═══════════════════════════════════════
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ═══════════════════════════════════════
+// КОНТЕНТ (для админки)
+// ═══════════════════════════════════════
+
+model Content {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  body      String
+  type      String   @default("page")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

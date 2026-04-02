@@ -9,17 +9,27 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.48",
+    "@libsql/client": "^0.17.2",
+    "@prisma/adapter-libsql": "^7.6.0",
+    "@prisma/client": "^7.6.0",
     "@tailwindcss/postcss": "^4.2.2",
+    "ai": "^6.0.141",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.1",
+    "next-auth": "^4.24.13",
+    "prisma": "^7.6.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
