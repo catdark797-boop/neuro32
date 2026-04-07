@@ -1,12 +1,17 @@
 import Link from "next/link";
+import { HeroCanvas } from "@/components/effects/HeroCanvas";
+import { Typewriter } from "@/components/effects/Typewriter";
+import { CounterAnimation } from "@/components/effects/CounterAnimation";
+import { CardTilt } from "@/components/effects/CardTilt";
+import { MagneticButton } from "@/components/effects/MagneticButton";
 
 const directions = [
-  { title: "ИИ для детей 7-12 лет", desc: "Нейросети глазами ребёнка, создание цифрового помощника, ИИ-арт, демо-день", price: "от 5,000₽/мес", href: "/kids", gradient: "linear-gradient(135deg,#cffafe,#dbeafe)" },
-  { title: "ИИ для подростков 13-17", desc: "Python для ИИ, внутренности нейросетей, компьютерное зрение, языковые модели", price: "от 6,500₽/мес", href: "/teens", gradient: "linear-gradient(135deg,#ede9fe,#e0f2fe)" },
-  { title: "ИИ для взрослых 18+", desc: "Языковые модели без интернета, база знаний на ваших данных, автоматизация", price: "от 8,000₽/мес", href: "/adults", gradient: "linear-gradient(135deg,#ecfdf5,#dbeafe)" },
-  { title: "Кибербезопасность + ИИ", desc: "Red Team / Blue Team, атаки на ИИ, пентестинг, обнаружение аномалий", price: "от 10,000₽/мес", href: "/cyber", gradient: "linear-gradient(135deg,#fef2f2,#fdf4ff)" },
-  { title: "Цифровые решения", desc: "Сайты, боты, контент — цифровые инструменты для бизнеса и самозанятых", price: "от 15,000₽", href: "/contacts", gradient: "linear-gradient(135deg,#fff7ed,#eff6ff)" },
-  { title: "Пакеты-траектории", desc: "Системный путь от нуля до эксперта. Семейный старт, Технарь+, Мастер ИИ", price: "от 9,000₽/мес", href: "/packages", gradient: "linear-gradient(135deg,#fefce8,#ecfdf5)" },
+  { title: "ИИ для детей 7-12 лет", desc: "Нейросети глазами ребёнка, создание цифрового помощника, ИИ-арт, демо-день", price: "от 5,000₽/мес", href: "/kids", gradient: "linear-gradient(135deg,#cffafe,#dbeafe)", emoji: "🧒" },
+  { title: "ИИ для подростков 13-17", desc: "Python для ИИ, внутренности нейросетей, компьютерное зрение, языковые модели", price: "от 6,500₽/мес", href: "/teens", gradient: "linear-gradient(135deg,#ede9fe,#e0f2fe)", emoji: "🧑‍💻" },
+  { title: "ИИ для взрослых 18+", desc: "Языковые модели без интернета, база знаний на ваших данных, автоматизация", price: "от 8,000₽/мес", href: "/adults", gradient: "linear-gradient(135deg,#ecfdf5,#dbeafe)", emoji: "👨‍💼" },
+  { title: "Кибербезопасность + ИИ", desc: "Red Team / Blue Team, атаки на ИИ, пентестинг, обнаружение аномалий", price: "от 10,000₽/мес", href: "/cyber", gradient: "linear-gradient(135deg,#fef2f2,#fdf4ff)", emoji: "🛡️" },
+  { title: "Цифровые решения", desc: "Сайты, боты, контент — цифровые инструменты для бизнеса и самозанятых", price: "от 15,000₽", href: "/contacts", gradient: "linear-gradient(135deg,#fff7ed,#eff6ff)", emoji: "💡" },
+  { title: "Пакеты-траектории", desc: "Системный путь от нуля до эксперта. Семейный старт, Технарь+, Мастер ИИ", price: "от 9,000₽/мес", href: "/packages", gradient: "linear-gradient(135deg,#fefce8,#ecfdf5)", emoji: "📦" },
 ];
 
 const whyItems = [
@@ -17,18 +22,12 @@ const whyItems = [
   { ico: "🛤️", title: "Один путь от 7 лет до кибербезопасника", text: "Прогрессивная программа. Целостная траектория развития от ребёнка до специалиста." },
 ];
 
-const stats = [
-  { num: "4+", label: "направления" },
-  { num: "7+", label: "лет мин. возраст" },
-  { num: "90", label: "минут сессия" },
-  { num: "0₽", label: "первая встреча" },
-];
-
 export default function HomePage() {
   return (
     <>
       {/* ══════ HERO ══════ */}
       <section className="hero">
+        <HeroCanvas />
         <div className="relative z-[1]">
           <div className="hero-eyebrow r-up">
             <span className="eyedot" />
@@ -38,7 +37,9 @@ export default function HomePage() {
           <h1 className="r-up d1">
             <span className="h1-plain">Живые</span>
             <span className="h1-grad">практики ИИ</span>
-            <span className="h1-outline">в Новозыбкове</span>
+            <span className="h1-outline">
+              <Typewriter texts={["интеллект —", "нейросети —", "будущее —", "возможности —"]} />
+            </span>
           </h1>
 
           <p className="hero-sub r-up d2">
@@ -55,15 +56,17 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-3 flex-wrap mb-5 r-up d4">
-            <Link href="/contacts" className="btn btn-p">Записаться →</Link>
+            <MagneticButton>
+              <Link href="/contacts" className="btn btn-p">Записаться →</Link>
+            </MagneticButton>
             <Link href="/packages" className="btn btn-s">О программах</Link>
           </div>
 
           <div className="flex gap-2 flex-wrap r-up d5">
-            <a href="tel:+79019769810" className="inline-flex items-center gap-[7px] bg-white/80 border border-[var(--border)] rounded-[9px] px-3 py-2 text-[0.96rem] font-medium text-[var(--ink2)] hover:border-[var(--blue)] hover:text-[var(--blue)] hover:bg-white transition-all backdrop-blur-lg">
+            <a href="tel:+79019769810" className="hc-link">
               📞 +7(901)976-98-10
             </a>
-            <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-[7px] bg-white/80 border border-[var(--border)] rounded-[9px] px-3 py-2 text-[0.96rem] font-medium text-[var(--ink2)] hover:border-[var(--blue)] hover:text-[var(--blue)] hover:bg-white transition-all backdrop-blur-lg">
+            <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="hc-link">
               ✈️ @DSM1322
             </a>
           </div>
@@ -104,9 +107,16 @@ export default function HomePage() {
 
       {/* ══════ STATS ══════ */}
       <div className="stats-row">
-        {stats.map((s) => (
+        {[
+          { target: 4, suffix: "+", label: "направления" },
+          { target: 7, suffix: "+", label: "лет мин. возраст" },
+          { target: 90, suffix: "", label: "минут сессия" },
+          { target: 0, suffix: "₽", label: "первая встреча" },
+        ].map((s) => (
           <div key={s.label} className="stat-box">
-            <span className="stat-num">{s.num}</span>
+            <span className="stat-num">
+              <CounterAnimation target={s.target} suffix={s.suffix} />
+            </span>
             <span className="stat-label">{s.label}</span>
           </div>
         ))}
@@ -119,22 +129,22 @@ export default function HomePage() {
 
         <div className="dir-grid">
           {directions.map((d, i) => (
-            <Link key={d.title} href={d.href} className={`card dc r-up d${i + 1}`}>
-              <div className="card-glow" />
-              <div className="dc-illus" style={{ background: d.gradient }}>
-                <span className="text-4xl opacity-60">
-                  {["🧒", "🧑‍💻", "👨‍💼", "🛡️", "💡", "📦"][i]}
-                </span>
-              </div>
-              <div className="dc-body">
-                <div className="dc-title">{d.title}</div>
-                <div className="dc-desc">{d.desc}</div>
-                <div className="dc-footer">
-                  <span className="dc-price">{d.price}</span>
-                  <span className="dc-arr">→</span>
+            <CardTilt key={d.title} className={`card dc r-up d${i + 1}`}>
+              <Link href={d.href} className="block">
+                <div className="card-glow" />
+                <div className="dc-illus" style={{ background: d.gradient }}>
+                  <span className="text-4xl opacity-60">{d.emoji}</span>
                 </div>
-              </div>
-            </Link>
+                <div className="dc-body">
+                  <div className="dc-title">{d.title}</div>
+                  <div className="dc-desc">{d.desc}</div>
+                  <div className="dc-footer">
+                    <span className="dc-price">{d.price}</span>
+                    <span className="dc-arr">→</span>
+                  </div>
+                </div>
+              </Link>
+            </CardTilt>
           ))}
         </div>
       </section>
@@ -182,18 +192,25 @@ export default function HomePage() {
       </section>
 
       {/* ══════ CTA ══════ */}
-      <section className="S text-center text-white" style={{ background: "var(--g1)" }}>
-        <h2 className="text-3xl md:text-5xl font-black mb-5 r-up" style={{ fontFamily: "var(--font-d)", letterSpacing: "-.03em" }}>
-          Начните путь в ИИ сегодня
-        </h2>
-        <p className="text-lg text-white/80 mb-8 max-w-lg mx-auto r-up d1">
-          Первая встреча — бесплатно. Запишитесь и убедитесь сами.
-        </p>
-        <div className="flex gap-3 justify-center flex-wrap r-up d2">
-          <Link href="/contacts" className="btn btn-w">Записаться бесплатно</Link>
-          <a href="https://t.me/DSM1322" target="_blank" rel="noopener noreferrer" className="btn btn-outline-w">Связаться в Telegram</a>
+      <div style={{ margin: "0 60px 88px" }}>
+        <div className="relative overflow-hidden" style={{ background: "var(--g1)", borderRadius: 24, padding: "56px 60px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 40 }}>
+          <div className="absolute -right-20 -top-20 w-[300px] h-[300px] rounded-full bg-white/[.06]" />
+          <div className="absolute left-[35%] -bottom-[60px] w-[220px] h-[220px] rounded-full bg-white/[.04]" />
+          <div className="relative z-[1]">
+            <h3 className="text-[1.8rem] font-black text-white mb-2 leading-[1.15] tracking-tight r-up" style={{ fontFamily: "var(--font-d)" }}>
+              Начните путь в ИИ сегодня
+            </h3>
+            <p className="text-white/[.78] text-[1.02rem] font-light r-up d1">
+              Первая встреча — бесплатно. Запишитесь и убедитесь сами.
+            </p>
+          </div>
+          <div className="relative z-[1] flex-shrink-0 r-up d2">
+            <MagneticButton>
+              <Link href="/contacts" className="btn btn-w">Записаться бесплатно</Link>
+            </MagneticButton>
+          </div>
         </div>
-      </section>
+      </div>
     </>
   );
 }
