@@ -6,6 +6,10 @@ import { OrganizationSchema, LocalBusinessSchema } from "@/components/seo/Schema
 import SessionProvider from "@/components/providers/SessionProvider";
 import { AIChatWidget } from "@/components/ai/AIChatWidget";
 import { ScrollReveal } from "@/components/animations/ScrollReveal";
+import { CustomCursor } from "@/components/effects/CustomCursor";
+import { LoadingScreen } from "@/components/effects/LoadingScreen";
+import { ScrollProgress } from "@/components/effects/ScrollProgress";
+import { GlitchEffect } from "@/components/effects/GlitchEffect";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://catdark797-boop.github.io/neuro32"),
@@ -73,6 +77,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <AIChatWidget />
           <ScrollReveal />
+          <CustomCursor />
+          <ScrollProgress />
+          <GlitchEffect />
+          <LoadingScreen />
         </SessionProvider>
       </body>
     </html>
