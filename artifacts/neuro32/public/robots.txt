@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /lk
+Disallow: /auth
+Disallow: /api/
+
+Sitemap: https://neuro32.ru/sitemap.xml
