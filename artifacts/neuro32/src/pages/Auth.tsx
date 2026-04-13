@@ -27,7 +27,7 @@ export default function Auth() {
     }
     const user = store.login(email, password);
     if (!user) {
-      setError('Неверный email или пароль. Для теста используйте пароль «demo»');
+      setError('Неверный email или пароль');
       return;
     }
     if (user.role === 'admin') navigate('/admin');
@@ -72,10 +72,6 @@ export default function Auth() {
 
             <div className="auth-link">Нет аккаунта? <a onClick={() => { setMode('register'); setError(''); }}>Зарегистрироваться</a></div>
 
-            <div style={{ marginTop: 20, padding: '12px 16px', background: 'rgba(240,165,0,.05)', border: '1px solid rgba(240,165,0,.12)', borderRadius: 10, fontSize: '.76rem', color: 'var(--t3)', lineHeight: 1.7 }}>
-              Демо-вход: любой email + пароль «demo»<br />
-              Админ: @DSM1322 + любой пароль
-            </div>
           </>
         ) : (
           <>
