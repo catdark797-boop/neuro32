@@ -35,8 +35,41 @@ export default function Reviews() {
 
   const approved = reviews.filter((r: { approved: boolean }) => r.approved);
 
+  // Schema.org: emit Organization with aggregateRating + Review array ONLY
+  // when we have real approved reviews. Fabricating a 0-review aggregate
+  // would fail Google's Rich Results validator and harm SEO.
+  const reviewsLd = approved.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Нейро 32",
+    url: "https://xn--32-mlcqsin.xn--p1ai",
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: (
+        approved.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / approved.length
+      ).toFixed(1),
+      reviewCount: approved.length,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    review: approved.slice(0, 20).map((r: { name: string; rating: number; text: string; createdAt?: string; direction?: string }) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: r.name },
+      reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+      reviewBody: r.text,
+      ...(r.createdAt ? { datePublished: r.createdAt.slice(0, 10) } : {}),
+      ...(r.direction ? { itemReviewed: { "@type": "Course", name: `ИИ для ${r.direction.toLowerCase()}` } } : {}),
+    })),
+  } : null;
+
   return (
     <div>
+      {reviewsLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewsLd) }}
+        />
+      )}
       <div className="pg-hero">
         <div className="pg-badge"><Star size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Отзывы</div>
         <h1>ОТЗЫВЫ <span className="accent">УЧАСТНИКОВ</span></h1>

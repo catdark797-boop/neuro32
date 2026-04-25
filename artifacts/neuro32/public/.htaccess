@@ -4,6 +4,14 @@
 RewriteEngine On
 RewriteBase /
 
+# Force HTTPS — bare http:// requests get a 301 to https:// before any
+# other rule fires. Required for the HSTS header to actually be useful
+# (browsers ignore HSTS over http) and to fix the Mozilla Observatory
+# "redirection" test.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
 # Defense-in-depth: even if a .map file slips into the deploy zip, refuse to
 # serve it. Source-maps are uploaded to Sentry only and must never be public.
 # (Build also runs `sourcemap: 'hidden'` + sentryVitePlugin
@@ -54,7 +62,7 @@ RewriteRule ^ /index.html [L]
 # 'unsafe-inline' on script-src kept for the small Y.Metrika init snippet
 # in index.html; if it ever gets hashed we should switch to nonce/hash.
 <IfModule mod_headers.c>
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://*.sentry.io https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://mc.yandex.ru https://*.sentry.io https://maps.google.com; connect-src 'self' https://*.sentry.io https://*.ingest.de.sentry.io https://*.ingest.sentry.io https://mc.yandex.ru wss://mc.yandex.ru https://api-server-production-0d71.up.railway.app; frame-src 'self' https://mc.yandex.ru; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api-server-production-0d71.up.railway.app; object-src 'none'; upgrade-insecure-requests"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://mc.yandex.ru https://*.sentry.io https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://mc.yandex.ru https://*.sentry.io https://maps.google.com; connect-src 'self' https://*.sentry.io https://*.ingest.de.sentry.io https://*.ingest.sentry.io https://mc.yandex.ru wss://mc.yandex.ru https://api-server-production-0d71.up.railway.app; frame-src 'self' https://mc.yandex.ru; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api-server-production-0d71.up.railway.app; object-src 'none'; upgrade-insecure-requests"
 
   # Stops MIME-sniffing attacks where a .jpg becomes interpreted as .html.
   Header always set X-Content-Type-Options "nosniff"
@@ -69,9 +77,20 @@ RewriteRule ^ /index.html [L]
   # malicious 3rd-party iframes if frame-src ever expands.
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
 
-  # HSTS — 6 months, include subdomains. Only meaningful on HTTPS, but
-  # reg.ru forces HTTPS via cert anyway, so this just hardens.
-  Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+  # HSTS — 1 year + preload eligibility. Sent ONLY on HTTPS responses;
+  # browsers ignore HSTS over HTTP and hstspreload.org flags it as
+  # warning if present on the HTTP redirect response. SetEnvIf reads the
+  # X-Forwarded-Proto header set by reg.ru's TLS-terminating proxy; the
+  # IS_HTTPS env then gates the Header directive.
+  SetEnvIf X-Forwarded-Proto "https" IS_HTTPS
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=IS_HTTPS
+
+  # Cross-Origin-Resource-Policy: tightens which origins can embed our
+  # resources (images, fonts) via <img>, <iframe>, etc. `same-site` is the
+  # right balance — blocks cross-site CORS embeds (one defence layer
+  # against Spectre-class attacks), allows our SPA + Sentry SDK to load
+  # everything from xn--32-mlcqsin.xn--p1ai itself.
+  Header always set Cross-Origin-Resource-Policy "same-site"
 
   # Yandex/Google honour these, though they're advisory.
   Header always set X-Robots-Tag "index, follow"

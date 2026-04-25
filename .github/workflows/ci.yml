@@ -6,9 +6,12 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    # Empty `branches:` filter lets the workflow fire on PRs against any
+    # base — useful while the repo's local `main` and GitHub `master`
+    # histories are still being reconciled.
+    branches: ["**"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
