@@ -1,8 +1,99 @@
 import { useState, useRef, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, GraduationCap, Wrench, Rocket } from 'lucide-react';
 import ShareButton from './ShareButton';
-import Roadmap from './Roadmap';
 import type { Phase } from './Roadmap';
 export type { Phase };
+
+/* ── CourseJsonLd ─────────────────────────────────────────────────────
+ * Per-program schema.org Course + Offer JSON-LD. Helps Google/Yandex
+ * surface the program in SERP rich-results (price, length, instructor).
+ * The aggregate `Course` array in index.html covers the four programs
+ * for site-wide context; this per-page block lets each program own its
+ * canonical record (URL, price, sessions, level).
+ */
+export function CourseJsonLd({
+  name,
+  description,
+  url,
+  price,
+  sessions,
+  weeks,
+  level,
+  audience,
+}: {
+  name: string;
+  description: string;
+  url: string;
+  price: number;
+  sessions: number;
+  weeks: number;
+  level: "Beginner" | "Intermediate" | "Advanced";
+  audience: string;
+}) {
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name,
+    description,
+    url,
+    provider: {
+      "@type": "Organization",
+      name: "Нейро 32",
+      sameAs: "https://xn--32-mlcqsin.xn--p1ai",
+    },
+    educationalLevel: level,
+    audience: { "@type": "EducationalAudience", educationalRole: audience },
+    inLanguage: "ru",
+    offers: {
+      "@type": "Offer",
+      url,
+      price: String(price),
+      priceCurrency: "RUB",
+      availability: "https://schema.org/InStock",
+      category: "Subscription",  // monthly tuition
+      // Pricing model so SERP can label it "from 5500 ₽/мес" instead of
+      // a one-time price (less attractive for cold visitors).
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: String(price),
+        priceCurrency: "RUB",
+        unitCode: "MON",          // UN/CEFACT — months
+        billingDuration: "P1M",
+      },
+    },
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "Onsite",
+      location: {
+        "@type": "Place",
+        name: "Лаборатория «Нейро 32»",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "ул. Коммунистическая, 22А",
+          addressLocality: "Новозыбков",
+          addressRegion: "Брянская область",
+          addressCountry: "RU",
+        },
+      },
+      instructor: {
+        "@type": "Person",
+        name: "Степан Денис",
+        jobTitle: "ИИ-практик",
+      },
+      courseWorkload: `PT${weeks}W`,
+      // Plain-text count so we surface "24 занятия" without a separate prop.
+      description: `${sessions} занятий за ${weeks} недель`,
+    },
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+    />
+  );
+}
 
 /* ── helpers ─────────────────────────────────────────── */
 function accentDim(a: string) {
@@ -31,7 +122,7 @@ export function UrgencyStrip({ onEnroll, program, slots = 3, accent = 'var(--amb
       <span style={{ fontSize: '.84rem', color: 'var(--t2)' }}>
         Осталось <strong style={{ color: accent }}>
           {slots} {slots === 1 ? 'место' : slots < 5 ? 'места' : 'мест'}
-        </strong> · Старт <strong style={{ color: accent }}>4 мая</strong>
+        </strong> · Группы <strong style={{ color: accent }}>каждые 4–6 недель</strong>
         {' · '}Пробное <strong style={{ color: accent }}>500 ₽</strong>
       </span>
       <button
@@ -45,16 +136,33 @@ export function UrgencyStrip({ onEnroll, program, slots = 3, accent = 'var(--amb
   );
 }
 
-/* ── TrustMini ────────────────────────────────────────── */
+/* ── TrustMini ──────────────────────────────────────────
+ * Compact founder-credibility strip. Shows on every program page so a cold
+ * visitor sees a real human behind the school before deciding whether to
+ * leave an application. Photo + name + experience + one-click to full bio.
+ */
 export function TrustMini({ accent = 'rgba(240,165,0,.3)' }: { accent?: string }) {
   return (
-    <div className="trust-mini">
-      <img src="/denis.jpg" className="trust-mini-photo" alt="Степан Денис" style={{ borderColor: accent }} loading="lazy" width="48" height="48" />
+    <a
+      href="/about"
+      className="trust-mini"
+      style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex' }}
+    >
+      <img
+        src="/denis.jpg"
+        className="trust-mini-photo"
+        alt="Степан Денис, основатель Нейро 32"
+        style={{ borderColor: accent }}
+        loading="lazy"
+        decoding="async"
+        width="48"
+        height="48"
+      />
       <div>
-        <div className="trust-mini-name">Степан Денис</div>
-        <div className="trust-mini-role">Практик с 2022 · ведёт занятия лично</div>
+        <div className="trust-mini-name">Степан Денис · ИИ-практик</div>
+        <div className="trust-mini-role">С 2022 · ведёт занятия лично · подробнее →</div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -128,20 +236,53 @@ function VariantDecoration({ variant }: { variant: 'kids' | 'teens' | 'adults' |
 }
 
 /* ── Breadcrumb ──────────────────────────────────────── */
+// Origin used in BreadcrumbList JSON-LD `item` URLs. Hard-coded to the
+// canonical punycode domain (xn--32-mlcqsin.xn--p1ai = нейро32.рф) so
+// search engines see the same canonical form everywhere — sitemap.xml,
+// og:url meta, and now structured data — instead of a mix of variants.
+const SITE_ORIGIN = "https://xn--32-mlcqsin.xn--p1ai";
+
 function Breadcrumb({ items }: { items: { label: string; href?: string }[] }) {
+  // Schema.org BreadcrumbList — helps Google/Yandex render the trail in
+  // SERP and pass authority between pages. Must include every step (incl.
+  // current page); current page typically has no `href`, so we synthesise
+  // its URL from window.location at render time.
+  const ldItems = items.map((item, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: item.label,
+    item: item.href
+      ? `${SITE_ORIGIN}${item.href.startsWith("/") ? item.href : `/${item.href}`}`
+      : (typeof window !== "undefined"
+          ? `${SITE_ORIGIN}${window.location.pathname}`
+          : SITE_ORIGIN),
+  }));
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: ldItems,
+  };
   return (
-    <nav className="prog-breadcrumb" aria-label="Навигация">
-      {items.map((item, i) => (
-        <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          {i > 0 && <span className="bc-sep">›</span>}
-          {item.href ? (
-            <a href={item.href} className="bc-link">{item.label}</a>
-          ) : (
-            <span className="bc-current">{item.label}</span>
-          )}
-        </span>
-      ))}
-    </nav>
+    <>
+      <script
+        type="application/ld+json"
+        // dangerouslySetInnerHTML keeps the JSON literal — React would
+        // otherwise escape angle-brackets / quotes inside the string.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
+      <nav className="prog-breadcrumb" aria-label="Навигация">
+        {items.map((item, i) => (
+          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            {i > 0 && <span className="bc-sep">›</span>}
+            {item.href ? (
+              <a href={item.href} className="bc-link">{item.label}</a>
+            ) : (
+              <span className="bc-current">{item.label}</span>
+            )}
+          </span>
+        ))}
+      </nav>
+    </>
   );
 }
 
@@ -288,7 +429,7 @@ export function ProgramHero({
 
 /* ── ProjectCardsSection ─────────────────────────────── */
 export interface Project {
-  icon: string;
+  icon: ReactNode;
   name: string;
   tool: string;
 }
@@ -313,15 +454,26 @@ export function ProjectCardsSection({ eyebrow, title, promise, items, accentColo
           <h2 className="proj-title">{title}</h2>
           <p style={{ fontFamily: 'var(--fd)', fontSize: '.94rem', color: 'var(--t3)', maxWidth: 480, lineHeight: 1.7, marginBottom: 0 }}>{promise}</p>
         </div>
-        <div className="proj-grid">
+        <motion.div
+          className="proj-grid"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-60px' }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        >
           {items.map((p, i) => (
-            <div key={i} className="proj-card">
+            <motion.div
+              key={i}
+              className="proj-card"
+              variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } }}
+              style={{ backdropFilter: 'blur(16px)', background: 'rgba(16,16,32,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
               <div className="proj-card-icon">{p.icon}</div>
               <div className="proj-card-name">{p.name}</div>
               <div className="proj-card-tool">{p.tool}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -360,7 +512,11 @@ export function ProgramFAQ({ items, accentColor = 'var(--amber)' }: {
                 <span>{item.q}</span>
                 <span className="faq-arrow" style={{ color: accentColor }}>{open === i ? '−' : '+'}</span>
               </div>
-              <div className="faq-a">{item.a}</div>
+              <div className="faq-a-wrap">
+                <div className="faq-a">
+                  <div className="faq-a-inner">{item.a}</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -424,10 +580,10 @@ export interface RoadmapPhase {
   type?: 'theory' | 'practice' | 'project';
 }
 
-const TYPE_META: Record<string, { label: string; emoji: string; cls: string }> = {
-  theory:   { label: 'Теория',   emoji: '🎓', cls: 'rm-type-badge rm-tb-theory' },
-  practice: { label: 'Практика', emoji: '🛠️', cls: 'rm-type-badge rm-tb-practice' },
-  project:  { label: 'Проект',   emoji: '🚀', cls: 'rm-type-badge rm-tb-project' },
+const TYPE_META: Record<string, { label: string; Icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; cls: string }> = {
+  theory:   { label: 'Теория',   Icon: GraduationCap, cls: 'rm-type-badge rm-tb-theory' },
+  practice: { label: 'Практика', Icon: Wrench,        cls: 'rm-type-badge rm-tb-practice' },
+  project:  { label: 'Проект',   Icon: Rocket,        cls: 'rm-type-badge rm-tb-project' },
 };
 
 export function ProgramRoadmap({
@@ -447,13 +603,23 @@ export function ProgramRoadmap({
       <div className="prem-div" />
       <h2 className="s-h2 rv">{title}</h2>
 
-      <div className="rm-vert-wrap">
+      <motion.div
+        className="rm-vert-wrap"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+      >
         {phases.map((ph, i) => {
           const typeMeta = ph.type ? TYPE_META[ph.type] : null;
           const phAccent = ph.accent || accent;
           const watermark = String(i + 1).padStart(2, '0');
           return (
-            <div key={i} className="rm-vert-row rv-s">
+            <motion.div
+              key={i}
+              className="rm-vert-row rv-s"
+              variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } } }}
+            >
               {/* Left: connector + circle */}
               <div className="rm-vert-left">
                 <div className="rm-vert-circle" style={{
@@ -491,8 +657,8 @@ export function ProgramRoadmap({
                     }}>{ph.sub}</div>
                   </div>
                   {typeMeta && (
-                    <span className={`rm-type-badge ${typeMeta.cls}`}>
-                      {typeMeta.emoji} {typeMeta.label}
+                    <span className={`rm-type-badge ${typeMeta.cls}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <typeMeta.Icon size={11} /> {typeMeta.label}
                     </span>
                   )}
                 </div>
@@ -504,7 +670,7 @@ export function ProgramRoadmap({
                   fontFamily: 'var(--fd)', fontSize: '.82rem', color: 'var(--t2)',
                   lineHeight: 1.5, position: 'relative', zIndex: 1,
                 }}>
-                  <span style={{ color: phAccent, marginRight: 6 }}>✓</span>{ph.milestone}
+                  <CheckCircle2 size={14} style={{ color: phAccent, marginRight: 6, flexShrink: 0, verticalAlign: 'middle' }} />{ph.milestone}
                 </div>
 
                 {/* Skills chips */}
@@ -514,10 +680,10 @@ export function ProgramRoadmap({
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </section>
   );
 }

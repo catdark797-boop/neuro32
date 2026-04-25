@@ -1,14 +1,16 @@
 import { usePageMeta } from '../hooks/usePageMeta';
 import Roadmap from '../components/Roadmap';
-import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap } from '../components/ProgramBlocks';
+import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap, CourseJsonLd } from '../components/ProgramBlocks';
+import OutcomesGallery from '../components/OutcomesGallery';
 import type { Phase } from '../components/Roadmap';
 import type { RoadmapPhase } from '../components/ProgramBlocks';
+import { Bot, Settings, Mic, BarChart2, CheckCircle2 } from 'lucide-react';
 
 const MILESTONE_PHASES: RoadmapPhase[] = [
   { num: '01', title: 'Основы', sub: 'Занятия 1–9', milestone: 'Первый промпт-сет и ГигаЧат-бот', skills: ['ChatGPT', 'ГигаЧат', 'промпты'], type: 'theory' },
   { num: '02', title: 'Программирование', sub: 'Занятия 10–18', milestone: 'Рабочий Telegram-бот', skills: ['Python', 'aiogram'], type: 'practice' },
   { num: '03', title: 'Автоматизация', sub: 'Занятия 19–27', milestone: 'Make.com-сценарий для реальной задачи', skills: ['Make.com', 'ElevenLabs'], type: 'practice' },
-  { num: '04', title: 'Питч', sub: 'Занятия 28–36', milestone: 'Портфолио из 5 проектов 🏆', skills: ['Питч', 'Портфолио'], type: 'project' },
+  { num: '04', title: 'Питч', sub: 'Занятия 28–36', milestone: 'Портфолио из 5 проектов', skills: ['Питч', 'Портфолио'], type: 'project' },
 ];
 
 const PHASES: Phase[] = [
@@ -61,10 +63,10 @@ const PHASES: Phase[] = [
 ];
 
 const PROJECTS = [
-  { icon: '🤖', name: 'Telegram-бот для школы или хобби', tool: 'Python + Telegram API' },
-  { icon: '⚙️', name: 'Автопостинг в VK без кода', tool: 'Make.com' },
-  { icon: '🎤', name: '30-сек видеопрезентация проекта', tool: 'Kling AI + ElevenLabs' },
-  { icon: '📊', name: 'Питч-дек стартапа', tool: 'Gamma.app' },
+  { icon: <Bot size={22} className="icon-amber" />, name: 'Telegram-бот для школы или хобби', tool: 'Python + Telegram API' },
+  { icon: <Settings size={22} className="icon-amber" />, name: 'Автопостинг в VK без кода', tool: 'Make.com' },
+  { icon: <Mic size={22} className="icon-amber" />, name: '30-сек видеопрезентация проекта', tool: 'Kling AI + ElevenLabs' },
+  { icon: <BarChart2 size={22} className="icon-amber" />, name: 'Питч-дек стартапа', tool: 'Gamma.app' },
 ];
 
 const FAQ = [
@@ -78,22 +80,18 @@ const FAQ = [
 
 const RIGHT_COL = (
   <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 200" width="100%" style={{ display: 'block', marginBottom: 20, borderRadius: 20 }} aria-label="Подростки создают проекты с ИИ">
-      <rect width="380" height="200" rx="16" fill="#0d0d1f"/>
-      <rect x="20" y="40" width="80" height="120" rx="8" fill="rgba(74,124,255,.08)" stroke="rgba(74,124,255,.2)" strokeWidth="1"/>
-      <rect x="25" y="50" width="70" height="8" rx="2" fill="rgba(74,124,255,.3)"/>
-      <rect x="25" y="64" width="50" height="5" rx="2" fill="rgba(255,255,255,.1)"/>
-      <rect x="25" y="74" width="60" height="5" rx="2" fill="rgba(255,255,255,.07)"/>
-      <rect x="25" y="84" width="45" height="5" rx="2" fill="rgba(255,255,255,.07)"/>
-      <text x="60" y="134" textAnchor="middle" fontSize="9" fill="rgba(74,124,255,.6)" fontFamily="monospace">Telegram-бот</text>
-      <rect x="150" y="40" width="80" height="120" rx="8" fill="rgba(240,165,0,.08)" stroke="rgba(240,165,0,.2)" strokeWidth="1"/>
-      <text x="190" y="100" textAnchor="middle" fontSize="28" fill="#f0a500">⚙</text>
-      <text x="190" y="134" textAnchor="middle" fontSize="9" fill="rgba(240,165,0,.6)" fontFamily="monospace">Make.com</text>
-      <rect x="280" y="40" width="80" height="120" rx="8" fill="rgba(45,158,107,.08)" stroke="rgba(45,158,107,.2)" strokeWidth="1"/>
-      <text x="320" y="100" textAnchor="middle" fontSize="28" fill="#2d9e6b">📊</text>
-      <text x="320" y="134" textAnchor="middle" fontSize="9" fill="rgba(45,158,107,.6)" fontFamily="monospace">Питч-дека</text>
-      <text x="190" y="178" textAnchor="middle" fontSize="9" fill="rgba(74,124,255,.5)" fontFamily="monospace">КОД · АВТОМАТИЗАЦИЯ · ПРОЕКТЫ</text>
-    </svg>
+    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 20, border: '1px solid rgba(74,124,255,.2)' }}>
+      <picture>
+        <source srcSet="/gen/teens-bg.webp" type="image/webp" />
+        <img src="/gen/teens-bg.jpg" alt="ИИ для подростков" width={1600} height={700} style={{ display: 'block', width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', aspectRatio: '1600/700' }} loading="lazy" decoding="async" />
+      </picture>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,24,.5) 0%, rgba(10,10,24,.2) 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['🤖 Python API', '⚙️ Make.com', '💬 Telegram-бот'].map((t) => (
+          <span key={t} style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: '#fff', background: 'rgba(74,124,255,.2)', border: '1px solid rgba(74,124,255,.35)', borderRadius: 6, padding: '4px 9px', backdropFilter: 'blur(8px)' }}>{t}</span>
+        ))}
+      </div>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
       {[
         { text: 'Telegram-бот, который реально работает' },
@@ -102,7 +100,7 @@ const RIGHT_COL = (
         { text: 'Сертификат участника + рекомендательное письмо' },
       ].map((it, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, padding: '10px 12px' }}>
-          <span style={{ color: 'var(--cobalt)', fontWeight: 700, fontSize: '.82rem' }}>✓</span>
+          <CheckCircle2 size={15} style={{ color: 'var(--cobalt)', flexShrink: 0 }} />
           <span style={{ fontSize: '.8rem', color: 'var(--t2)', lineHeight: 1.4 }}>{it.text}</span>
         </div>
       ))}
@@ -114,6 +112,16 @@ export default function Teens({ onEnroll }: { onEnroll?: (p?: string) => void })
   usePageMeta('ИИ для подростков 13–17', 'Офлайн-занятия по ИИ для подростков 13–17 лет в Новозыбкове. Python, Telegram-боты, Make.com. Портфолио из 5 проектов. 36 занятий · 7 000 ₽/мес.', '/teens');
   return (
     <div>
+      <CourseJsonLd
+        name="ИИ для подростков 13–17 лет"
+        description="Офлайн-курс ИИ-практик для подростков: Python, Telegram-боты, Make.com автоматизация. 36 занятий за 4 месяца, итог — портфолио из 5 проектов."
+        url="https://xn--32-mlcqsin.xn--p1ai/teens"
+        price={7000}
+        sessions={36}
+        weeks={16}
+        level="Intermediate"
+        audience="HighSchool"
+      />
       <ProgramHero
         badge="Для подростков · 13–17 лет"
         headline={
@@ -121,9 +129,9 @@ export default function Teens({ onEnroll }: { onEnroll?: (p?: string) => void })
             <span style={{ fontFamily: 'var(--fm)', color: 'var(--cobalt)', fontWeight: 600, marginRight: 10, fontSize: '0.8em' }}>{'</>'}</span>ИИ ДЛЯ <span style={{ color: 'var(--amber)' }}>ПОДРОСТКОВ</span>
           </h1>
         }
-        description="Через 4–5 месяцев — портфолио из реальных проектов: Telegram-боты, автоматизации, питч-декки. Это выделит среди сверстников при поступлении и поиске первой работы."
+        description="За 4–5 месяцев соберёшь боевое портфолио: свой Telegram-бот, автоматизация под себя, презентация-питч. Сертификат, который реально замечают HR и приёмные комиссии — с доказательствами в виде работающих проектов, а не сертификата «сидел на занятиях»."
         chips={<>
-          <span className="chip ch-green" style={{ fontWeight: 600 }}>🟢 Набор открыт · Старт 4 мая</span>
+          <span className="chip ch-green" style={{ fontWeight: 600 }}>Набор открыт · Запись на пробное</span>
           <span className="chip ch-blue">13–17 лет</span>
           <span className="chip ch-green">36 занятий · 4–5 мес · 2 раза/нед</span>
           <span className="chip ch-amber">7 000 ₽/мес</span>
@@ -136,7 +144,7 @@ export default function Teens({ onEnroll }: { onEnroll?: (p?: string) => void })
         enrollLabel="Записаться на пробное →"
         onEnroll={onEnroll}
         shareTitle="ИИ для подростков 13–17 — Нейро 32"
-        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Подростки 13–17 лет. Старт 4 мая."
+        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Подростки 13–17 лет. Набор открыт."
         breadcrumb={[{ label: 'Главная', href: '/' }, { label: 'Программы', href: '/#programs' }, { label: 'ИИ для подростков' }]}
         progressSteps={['Основы', 'Программирование', 'Автоматизация', 'Питч']}
         progressActive={0}
@@ -147,6 +155,8 @@ export default function Teens({ onEnroll }: { onEnroll?: (p?: string) => void })
         promise="Не учебные задачи — рабочие инструменты: бот, который отвечает, автоматизация, которая работает, питч, который можно показать."
         items={PROJECTS}
       />
+
+      <OutcomesGallery program="teens" />
 
       <ProgramRoadmap
         phases={MILESTONE_PHASES}
@@ -169,7 +179,7 @@ export default function Teens({ onEnroll }: { onEnroll?: (p?: string) => void })
 
       <ProgramFAQ items={FAQ} />
 
-      <style>{`@media(max-width:768px){.prog-hero-grid{grid-template-columns:1fr!important;padding:40px 24px!important;}}`}</style>
+
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import { usePageMeta } from '../hooks/usePageMeta';
 import Roadmap from '../components/Roadmap';
-import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap } from '../components/ProgramBlocks';
+import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap, CourseJsonLd } from '../components/ProgramBlocks';
+import OutcomesGallery from '../components/OutcomesGallery';
 import type { Phase } from '../components/Roadmap';
 import type { RoadmapPhase } from '../components/ProgramBlocks';
+import { Bot, Palette, Music, Film, Gamepad2, CheckCircle2 } from 'lucide-react';
 
 const MILESTONE_PHASES: RoadmapPhase[] = [
   { num: '01', title: 'Знакомство', sub: 'Занятия 1–8', milestone: 'Первая ИИ-история и трек', skills: ['ГигаЧат', 'Шедеврум', 'промпты'], type: 'theory' },
   { num: '02', title: 'Творчество', sub: 'Занятия 9–16', milestone: 'Мини-мультфильм и Scratch-игра', skills: ['Suno AI', 'ElevenLabs', 'Scratch'], type: 'practice' },
-  { num: '03', title: 'Портфолио', sub: 'Занятия 17–24', milestone: 'Сертификат участника + 4 проекта 🎓', skills: ['Kling AI', 'Медиаграмотность'], type: 'project' },
+  { num: '03', title: 'Портфолио', sub: 'Занятия 17–24', milestone: 'Сертификат участника + 4 проекта', skills: ['Kling AI', 'Медиаграмотность'], type: 'project' },
 ];
 
 const PHASES: Phase[] = [
@@ -51,10 +53,10 @@ const PHASES: Phase[] = [
 ];
 
 const PROJECTS = [
-  { icon: '🎨', name: 'Иллюстрированная история', tool: 'Шедеврум + ГигаЧат' },
-  { icon: '🎵', name: 'Авторский музыкальный трек', tool: 'Suno AI' },
-  { icon: '🎬', name: 'Мини-мультфильм', tool: 'Kling AI' },
-  { icon: '🎮', name: 'Компьютерная игра', tool: 'Scratch' },
+  { icon: <Palette size={22} className="icon-amber" />, name: 'Иллюстрированная история', tool: 'Шедеврум + ГигаЧат' },
+  { icon: <Music size={22} className="icon-amber" />, name: 'Авторский музыкальный трек', tool: 'Suno AI' },
+  { icon: <Film size={22} className="icon-amber" />, name: 'Мини-мультфильм', tool: 'Kling AI' },
+  { icon: <Gamepad2 size={22} className="icon-amber" />, name: 'Компьютерная игра', tool: 'Scratch' },
 ];
 
 const FAQ = [
@@ -69,31 +71,28 @@ const FAQ = [
 
 const RIGHT_COL = (
   <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 200" width="100%" style={{ display: 'block', marginBottom: 20, borderRadius: 20 }} aria-label="Дети создают с ИИ">
-      <rect width="380" height="200" rx="16" fill="#0d0d1f"/>
-      <circle cx="60" cy="100" r="38" fill="rgba(240,165,0,.07)" stroke="rgba(240,165,0,.18)" strokeWidth="1"/>
-      <circle cx="190" cy="100" r="38" fill="rgba(74,124,255,.07)" stroke="rgba(74,124,255,.18)" strokeWidth="1"/>
-      <circle cx="320" cy="100" r="38" fill="rgba(45,158,107,.07)" stroke="rgba(45,158,107,.18)" strokeWidth="1"/>
-      <text x="60" y="96" textAnchor="middle" fontSize="22" fill="#f0a500">🎨</text>
-      <text x="60" y="115" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,.4)" fontFamily="monospace">Шедеврум</text>
-      <text x="190" y="96" textAnchor="middle" fontSize="22" fill="#4a7cff">🎵</text>
-      <text x="190" y="115" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,.4)" fontFamily="monospace">Suno AI</text>
-      <text x="320" y="96" textAnchor="middle" fontSize="22" fill="#2d9e6b">🎬</text>
-      <text x="320" y="115" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,.4)" fontFamily="monospace">Kling AI</text>
-      <line x1="98" y1="100" x2="152" y2="100" stroke="rgba(255,255,255,.08)" strokeWidth="1" strokeDasharray="4 3"/>
-      <line x1="228" y1="100" x2="282" y2="100" stroke="rgba(255,255,255,.08)" strokeWidth="1" strokeDasharray="4 3"/>
-      <text x="190" y="178" textAnchor="middle" fontSize="9" fill="rgba(240,165,0,.5)" fontFamily="monospace">СОЗДАЁМ · УЧИМСЯ · ТВОРИМ</text>
-    </svg>
+    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 20, border: '1px solid rgba(240,165,0,.18)' }}>
+      <picture>
+        <source srcSet="/gen/kids-bg.webp" type="image/webp" />
+        <img src="/gen/kids-bg.jpg" alt="ИИ для детей" width={1600} height={700} style={{ display: 'block', width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', aspectRatio: '1600/700' }} loading="lazy" decoding="async" />
+      </picture>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,24,.5) 0%, rgba(10,10,24,.2) 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['🎨 Шедеврум', '🎵 Suno AI', '🎬 Kling AI'].map((t) => (
+          <span key={t} style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: '#fff', background: 'rgba(240,165,0,.18)', border: '1px solid rgba(240,165,0,.3)', borderRadius: 6, padding: '4px 9px', backdropFilter: 'blur(8px)' }}>{t}</span>
+        ))}
+      </div>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
       {[
-        { icon: '✓', text: 'Рисует картины и сочиняет истории с ИИ' },
-        { icon: '✓', text: 'Создаёт музыку в Suno AI' },
-        { icon: '✓', text: 'Делает мультфильм в Kling AI' },
-        { icon: '✓', text: 'Знает правила цифровой безопасности' },
-      ].map((it, i) => (
+        'Рисует картины и сочиняет истории с ИИ',
+        'Создаёт музыку в Suno AI',
+        'Делает мультфильм в Kling AI',
+        'Знает правила цифровой безопасности',
+      ].map((text, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, padding: '10px 12px' }}>
-          <span style={{ color: 'var(--amber)', fontWeight: 700, fontSize: '.82rem' }}>{it.icon}</span>
-          <span style={{ fontSize: '.8rem', color: 'var(--t2)', lineHeight: 1.4 }}>{it.text}</span>
+          <CheckCircle2 size={15} className="icon-amber" style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: '.8rem', color: 'var(--t2)', lineHeight: 1.4 }}>{text}</span>
         </div>
       ))}
     </div>
@@ -104,16 +103,26 @@ export default function Kids({ onEnroll }: { onEnroll?: (p?: string) => void }) 
   usePageMeta('ИИ для детей 7–12', 'Офлайн-занятия по ИИ для детей 7–12 лет в Новозыбкове. Шедеврум, ГигаЧат, Suno AI, Scratch. 24 занятия · 5 500 ₽/мес. Пробное — 500 ₽.', '/kids');
   return (
     <div>
+      <CourseJsonLd
+        name="ИИ для детей 7–12 лет"
+        description="Офлайн-курс ИИ-практик для детей 7–12 лет: Шедеврум, ГигаЧат, Suno AI, Kling AI, Scratch. 24 занятия за 3 месяца, итог — портфолио из 4 проектов."
+        url="https://xn--32-mlcqsin.xn--p1ai/kids"
+        price={5500}
+        sessions={24}
+        weeks={12}
+        level="Beginner"
+        audience="Children"
+      />
       <ProgramHero
         badge="Для детей · 7–12 лет"
         headline={
-          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16 }}>
-            <span style={{ marginRight: 8 }}>🤖</span>ИИ ДЛЯ <span style={{ color: 'var(--amber)' }}>ДЕТЕЙ</span>
+          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <Bot size={32} className="icon-amber" />ИИ ДЛЯ <span style={{ color: 'var(--amber)' }}>ДЕТЕЙ</span>
           </h1>
         }
         description="Через 3 месяца ребёнок создаст иллюстрированную историю, музыкальный трек, мультфильм и игру — и полюбит технологии. Никаких лекций: 80% времени — живая практика."
         chips={<>
-          <span className="chip ch-green" style={{ fontWeight: 600 }}>🟢 Набор открыт · Старт 4 мая</span>
+          <span className="chip ch-green" style={{ fontWeight: 600 }}>Набор открыт · Запись на пробное</span>
           <span className="chip ch-amber">7–12 лет</span>
           <span className="chip ch-green">24 занятия · 3 мес · 2 раза/нед</span>
           <span className="chip ch-amber">5 500 ₽/мес</span>
@@ -125,7 +134,7 @@ export default function Kids({ onEnroll }: { onEnroll?: (p?: string) => void }) 
         enrollLabel="Записать ребёнка на пробное →"
         onEnroll={onEnroll}
         shareTitle="ИИ для детей 7–12 — Нейро 32"
-        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Дети 7–12 лет. Старт 4 мая."
+        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Дети 7–12 лет. Набор открыт."
         breadcrumb={[{ label: 'Главная', href: '/' }, { label: 'Программы', href: '/#programs' }, { label: 'ИИ для детей 7–12' }]}
         progressSteps={['Знакомство', 'Творчество', 'Портфолио']}
         progressActive={0}
@@ -136,6 +145,8 @@ export default function Kids({ onEnroll }: { onEnroll?: (p?: string) => void }) 
         promise="Не учебные упражнения — творческие работы, которые можно показать друзьям и положить в первое портфолио."
         items={PROJECTS}
       />
+
+      <OutcomesGallery program="kids" />
 
       <ProgramRoadmap
         phases={MILESTONE_PHASES}
@@ -158,7 +169,7 @@ export default function Kids({ onEnroll }: { onEnroll?: (p?: string) => void }) 
 
       <ProgramFAQ items={FAQ} />
 
-      <style>{`@media(max-width:768px){.prog-hero-grid{grid-template-columns:1fr!important;padding:40px 24px!important;}}`}</style>
+
     </div>
   );
 }

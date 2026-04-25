@@ -1,4 +1,5 @@
 import { useLocation } from 'wouter';
+import { analytics } from '../lib/analytics';
 
 const SocTelegram = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -12,12 +13,6 @@ const SocVK = () => (
   </svg>
 );
 
-const SocYouTube = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
-);
-
 const SocEmail = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -26,8 +21,7 @@ const SocEmail = () => (
 
 const SOCIALS = [
   { href: 'https://t.me/DSM1322', label: 'Telegram', icon: <SocTelegram /> },
-  { href: 'https://vk.com/DSM1322', label: 'ВКонтакте', icon: <SocVK /> },
-  { href: 'https://youtube.com/@DSM1322', label: 'YouTube', icon: <SocYouTube /> },
+  { href: 'https://vk.ru/id1071554033', label: 'ВКонтакте', icon: <SocVK /> },
   { href: 'mailto:d3stemar@yandex.ru', label: 'Email', icon: <SocEmail /> },
 ];
 
@@ -56,6 +50,7 @@ export default function Footer({ onEnroll }: { onEnroll?: (p?: string) => void }
             {SOCIALS.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                 aria-label={s.label}
+                onClick={() => { if (s.label === 'Telegram') analytics.telegramClick('footer-social'); }}
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   width: 38, height: 38, borderRadius: 10,
@@ -109,15 +104,15 @@ export default function Footer({ onEnroll }: { onEnroll?: (p?: string) => void }
         </div>
       </footer>
       <div className="fbot" style={{ flexDirection: 'column', gap: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, width: '100%' }}>
-          <span>© 2026 Нейро 32 · Степан Марьянович Денис</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, width: '100%', alignItems: 'center' }}>
+          <span>© 2026 Нейро 32</span>
           <div style={{ display: 'flex', gap: 16 }}>
             <a href="/privacy" style={{ color: 'var(--t4)' }} onClick={e => { e.preventDefault(); scrollTop('/privacy'); }}>Политика конфиденциальности</a>
             <a href="/offer" style={{ color: 'var(--t4)' }} onClick={e => { e.preventDefault(); scrollTop('/offer'); }}>Договор-оферта</a>
           </div>
         </div>
-        <div style={{ fontSize: '0.65rem', color: 'var(--t4)', lineHeight: 1.5, textAlign: 'center', opacity: 0.7 }}>
-          Степан Денис · НПД · ИНН 326504606285 · Услуги оказываются в рамках индивидуальной педагогической деятельности · Не является образовательной организацией
+        <div style={{ fontSize: '0.65rem', color: 'var(--t4)', lineHeight: 1.5, opacity: 0.7 }}>
+          Степан Марьянович Денис · НПД · ИНН 326504606285 · Услуги оказываются в рамках индивидуальной педагогической деятельности · Не является образовательной организацией
         </div>
       </div>
     </>

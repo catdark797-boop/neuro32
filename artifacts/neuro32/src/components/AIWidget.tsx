@@ -19,7 +19,7 @@ function smartFallback(msg: string): string {
   if (m.includes('получ') || m.includes('дают') || m.includes('результат')) return 'После практик вы умеете работать с 10+ ИИ-инструментами, автоматизируете рабочие задачи и уходите с готовыми проектами. Всё делается руками на реальных задачах.';
   if (m.includes('записат') || m.includes('запись')) return 'Напишите Степану в Telegram @DSM1322 или позвоните: +7 (901) 976-98-10. Пробный урок — 500 ₽, засчитывается в абонемент!';
   if (m.includes('цен') || m.includes('стоим') || m.includes('сколько')) return 'Цены:\n🧒 Дети 7–12 — 5 500 ₽/мес\n👦 Подростки — 7 000 ₽/мес\n👔 Взрослые — 8 500 ₽/мес\n🔐 Кибербез — 11 000 ₽/мес\nПробный урок — 500 ₽.';
-  if (m.includes('расписани') || m.includes('когда') || m.includes('старт')) return 'Старт ближайшего набора — 4 мая 2026. Занятия 2 раза в неделю. Точное расписание: @DSM1322.';
+  if (m.includes('расписани') || m.includes('когда') || m.includes('старт')) return 'Новые группы каждые 4–6 недель. Занятия 2 раза в неделю. Точную дату ближайшего старта подскажет Степан: @DSM1322.';
   if (m.includes('привет') || m.includes('здравствуй') || m.includes('добрый')) return 'Привет! 👋 Я Нейра — ИИ-ассистент Нейро 32. Чем могу помочь?';
   return 'Для подробного ответа напишите Степану:\nTelegram: @DSM1322\n📞 +7 (901) 976-98-10\nОтвечает в течение часа 😊';
 }
@@ -58,14 +58,15 @@ export default function AIWidget({ open, onClose }: { open: boolean; onClose: ()
 
   const callLLM = async (history: ApiMessage[]): Promise<string> => {
     try {
-      const resp = await fetch('/api/ai-chat', {
+      const base = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+      const resp = await fetch(`${base}/api/ai-chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ messages: history }),
-        signal: AbortSignal.timeout(10000),
+        signal: AbortSignal.timeout(16000),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const data = await resp.json() as { reply?: string; error?: string };
+      const data = await resp.json() as { reply?: string | null; error?: string };
       if (data.reply) return data.reply;
       throw new Error(data.error || 'empty reply');
     } catch (err) {
@@ -84,23 +85,15 @@ export default function AIWidget({ open, onClose }: { open: boolean; onClose: ()
     setLoading(true);
     store.incAIMessages();
 
-    const priorUserTurns = msgs.filter(m => m.role === 'user').length;
-    const isFirstTurn = priorUserTurns === 0;
+    // Every turn → try LLM first, regex only on failure
+    const history: ApiMessage[] = nextMsgs
+      .filter(m => m.text !== INIT_MSG)
+      .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
 
-    let reply: string;
-
-    if (isFirstTurn) {
+    let reply = await callLLM(history);
+    if (!reply) {
+      await new Promise(r => setTimeout(r, 250 + Math.random() * 200));
       reply = smartFallback(text);
-    } else {
-      const history: ApiMessage[] = nextMsgs
-        .filter(m => m.text !== INIT_MSG)
-        .map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
-
-      reply = await callLLM(history);
-      if (!reply) {
-        await new Promise(r => setTimeout(r, 300 + Math.random() * 200));
-        reply = smartFallback(text);
-      }
     }
 
     setMsgs(m => [...m, { role: 'bot', text: reply }]);
@@ -113,7 +106,9 @@ export default function AIWidget({ open, onClose }: { open: boolean; onClose: ()
       <button
         className="ai-fab"
         onClick={onClose}
-        aria-label="Открыть чат с Нейрой"
+        aria-label={open ? 'Закрыть чат с Нейрой' : 'Открыть чат с Нейрой'}
+        aria-expanded={open}
+        aria-controls="ai-panel"
         style={{ position: 'relative' }}
       >
         <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>🤖</span>
@@ -128,12 +123,12 @@ export default function AIWidget({ open, onClose }: { open: boolean; onClose: ()
       </button>
 
       {/* PANEL */}
-      <div className={`ai-panel${open ? ' open' : ''}`}>
+      <div id="ai-panel" role="dialog" aria-labelledby="ai-panel-title" aria-hidden={!open} className={`ai-panel${open ? ' open' : ''}`}>
         {/* Header */}
         <div className="ai-head">
           <div className="ai-head-ava" style={{ fontSize: '1.4rem', lineHeight: 1 }}>🤖</div>
           <div style={{ flex: 1 }}>
-            <div className="ai-head-name">Нейра · ИИ-помощник лаборатории</div>
+            <div id="ai-panel-title" className="ai-head-name">Нейра · ИИ-помощник лаборатории</div>
             <div className="ai-head-st">
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--amber)', animation: 'bdot 2s ease infinite', flexShrink: 0 }} />
               ИИ · GPT · отвечает за секунды

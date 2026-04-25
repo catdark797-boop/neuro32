@@ -3,22 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <!-- Force HTML re-validation so users always get the freshest bundle.
+         JS/CSS are immutable (hash-named) so they're cached long-term by .htaccess. -->
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate" />
+    <meta http-equiv="pragma" content="no-cache" />
 
     <!-- Primary SEO -->
     <title>Нейро 32 — Офлайн-практика ИИ в Новозыбкове | Дети, Подростки, Взрослые</title>
     <meta name="description" content="Офлайн-лаборатория ИИ в Новозыбкове. 4 направления: дети 7–12, подростки 13–17, взрослые 18+, кибербезопасность. Пробное занятие 500 ₽. Результат с первого урока." />
     <meta name="keywords" content="ИИ Новозыбков, лаборатория искусственного интеллекта, практика ChatGPT, промпт-инжиниринг, Нейро 32, кибербезопасность дети, занятия ИИ" />
     <meta name="author" content="Степан Денис" />
-    <link rel="canonical" href="https://neuro32.ru/" />
+    <link rel="canonical" href="https://xn--32-mlcqsin.xn--p1ai/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Нейро 32" />
     <meta property="og:title" content="Нейро 32 — Офлайн-практика ИИ в Новозыбкове" />
     <meta property="og:description" content="Научитесь применять ИИ в жизни и работе. Офлайн-занятия в Новозыбкове для детей, подростков и взрослых. Пробное — 500 ₽." />
-    <meta property="og:url" content="https://neuro32.ru/" />
+    <meta property="og:url" content="https://xn--32-mlcqsin.xn--p1ai/" />
     <meta property="og:locale" content="ru_RU" />
-    <meta property="og:image" content="https://neuro32.ru/opengraph.jpg" />
+    <meta property="og:image" content="https://xn--32-mlcqsin.xn--p1ai/opengraph.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Нейро 32 — Офлайн-практика ИИ в Новозыбкове" />
@@ -27,10 +31,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Нейро 32 — Офлайн-практика ИИ в Новозыбкове" />
     <meta name="twitter:description" content="4 направления, 12+ инструментов, 100% офлайн. Пробное занятие 500 ₽." />
-    <meta name="twitter:image" content="https://neuro32.ru/opengraph.jpg" />
+    <meta name="twitter:image" content="https://xn--32-mlcqsin.xn--p1ai/opengraph.jpg" />
 
     <!-- VK Open Graph -->
-    <meta property="vk:image" content="https://neuro32.ru/opengraph.jpg" />
+    <meta property="vk:image" content="https://xn--32-mlcqsin.xn--p1ai/opengraph.jpg" />
 
     <!-- Yandex verification -->
     <meta name="yandex-verification" content="PLACEHOLDER_YANDEX_CODE" />
@@ -46,7 +50,17 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- Preload most-critical body font so first paint already has metrics. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+
+    <!-- LCP hint: Home hero background. Browser starts fetching before main.tsx
+         even parses, shaving ~300ms from Largest Contentful Paint on slow 3G.
+         imagesrcset/imagesizes lets the browser pick webp on supporting clients. -->
+    <link rel="preload" as="image" href="/gen/hero-bg.jpg" imagesrcset="/gen/hero-bg.webp" type="image/webp" fetchpriority="high">
+    <!-- Denis photo: appears on Home (about-block), About hero, every program
+         page (TrustMini). Preloading once means cache hits everywhere else. -->
+    <link rel="preload" as="image" href="/denis.jpg" fetchpriority="low">
 
     <!-- Schema.org Organization + LocalBusiness -->
     <script type="application/ld+json">
@@ -57,7 +71,7 @@
       "name": "Нейро 32",
       "alternateName": "Neuro 32",
       "description": "Лаборатория ИИ-практик в Новозыбкове. Практические офлайн-занятия для детей, подростков и взрослых.",
-      "url": "https://neuro32.ru",
+      "url": "https://xn--32-mlcqsin.xn--p1ai",
       "telephone": "+7-901-976-98-10",
       "email": "d3stemar@yandex.ru",
       "founder": {
@@ -101,10 +115,10 @@
       "@type": "LocalBusiness",
       "name": "Нейро 32",
       "description": "Лаборатория ИИ-практик в Новозыбкове — офлайн-занятия для детей, подростков и взрослых.",
-      "url": "https://neuro32.ru",
+      "url": "https://xn--32-mlcqsin.xn--p1ai",
       "telephone": "+7-901-976-98-10",
       "email": "d3stemar@yandex.ru",
-      "image": "https://neuro32.ru/opengraph.jpg",
+      "image": "https://xn--32-mlcqsin.xn--p1ai/opengraph.jpg",
       "priceRange": "500₽–11000₽",
       "address": {
         "@type": "PostalAddress",
@@ -126,6 +140,60 @@
       "sameAs": ["https://t.me/DSM1322"]
     }
     ]
+    </script>
+    <!-- Schema.org Course list — one entry per program for SERP rich snippets.
+         provider points back to the LocalBusiness above. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Course",
+          "name": "ИИ для детей 7–12",
+          "description": "Практический курс по ИИ для младших школьников. 24–32 занятия офлайн. Шедеврум, Suno AI, Kling AI, основы Scratch.",
+          "provider": {"@type": "Organization", "name": "Нейро 32", "sameAs": "https://xn--32-mlcqsin.xn--p1ai"},
+          "url": "https://xn--32-mlcqsin.xn--p1ai/kids",
+          "courseMode": "Onsite",
+          "educationalLevel": "Beginner",
+          "audience": {"@type": "EducationalAudience", "educationalRole": "student", "audienceType": "Children 7–12"},
+          "offers": {"@type": "Offer", "price": "5500", "priceCurrency": "RUB", "availability": "https://schema.org/InStock", "category": "Subscription"},
+          "hasCourseInstance": {"@type": "CourseInstance", "courseMode": "Onsite", "courseWorkload": "PT3H", "location": {"@type": "Place", "name": "Лаборатория Нейро 32", "address": {"@type": "PostalAddress", "streetAddress": "ул. Коммунистическая, 22А", "addressLocality": "Новозыбков", "addressCountry": "RU"}}}
+        },
+        {
+          "@type": "Course",
+          "name": "ИИ для подростков 13–17",
+          "description": "ChatGPT, Make.com, Python, Telegram-боты. 36 занятий офлайн в Новозыбкове. Боевое портфолио для приёмных комиссий.",
+          "provider": {"@type": "Organization", "name": "Нейро 32", "sameAs": "https://xn--32-mlcqsin.xn--p1ai"},
+          "url": "https://xn--32-mlcqsin.xn--p1ai/teens",
+          "courseMode": "Onsite",
+          "educationalLevel": "Beginner",
+          "audience": {"@type": "EducationalAudience", "educationalRole": "student", "audienceType": "Teens 13–17"},
+          "offers": {"@type": "Offer", "price": "7000", "priceCurrency": "RUB", "availability": "https://schema.org/InStock", "category": "Subscription"}
+        },
+        {
+          "@type": "Course",
+          "name": "ИИ для взрослых 18+",
+          "description": "Промпт-инжиниринг, автоматизация бизнес-процессов, ИИ-агенты. 32 занятия. Реальные задачи прямо на уроке.",
+          "provider": {"@type": "Organization", "name": "Нейро 32", "sameAs": "https://xn--32-mlcqsin.xn--p1ai"},
+          "url": "https://xn--32-mlcqsin.xn--p1ai/adults",
+          "courseMode": "Onsite",
+          "educationalLevel": "Beginner",
+          "audience": {"@type": "EducationalAudience", "educationalRole": "professional", "audienceType": "Adults 18+"},
+          "offers": {"@type": "Offer", "price": "8500", "priceCurrency": "RUB", "availability": "https://schema.org/InStock", "category": "Subscription"}
+        },
+        {
+          "@type": "Course",
+          "name": "Цифровая защита (Кибербезопасность)",
+          "description": "Kali Linux, VPN, 2FA, основы CTF. 24 занятия. Только этичные техники защиты, не атак.",
+          "provider": {"@type": "Organization", "name": "Нейро 32", "sameAs": "https://xn--32-mlcqsin.xn--p1ai"},
+          "url": "https://xn--32-mlcqsin.xn--p1ai/cyber",
+          "courseMode": "Onsite",
+          "educationalLevel": "Intermediate",
+          "audience": {"@type": "EducationalAudience", "educationalRole": "student", "audienceType": "14+"},
+          "offers": {"@type": "Offer", "price": "11000", "priceCurrency": "RUB", "availability": "https://schema.org/InStock", "category": "Subscription"}
+        }
+      ]
+    }
     </script>
     <!-- Schema.org FAQPage for Home FAQ accordion -->
     <script type="application/ld+json">
@@ -178,7 +246,7 @@
           "name": "Когда ближайший старт?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Ближайший набор — 4 мая 2026. Осталось 3 свободных места. Запишитесь сейчас — подтверждение и детали придут в течение часа."
+            "text": "Актуальную дату ближайшего набора уточним в Telegram @DSM1322 при записи. Обычно новые группы стартуют каждые 4–6 недель, мы подберём удобный формат."
           }
         }
       ]

@@ -47,3 +47,38 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Environment variables — never commit real secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+.env.regru
+.env.railway
+.env.sentry
+.env.yandex
+artifacts/**/.env
+artifacts/**/.env.local
+artifacts/**/.env.production.local
+
+# Local Claude harness state — agent-specific config, not portable
+.claude/
+.cursor/
+
+# Project-local secrets bundles (anything that ends in -secrets.* or .secrets.*)
+*.secrets.*
+*-secrets.*
+secrets/
+
+# Build artefacts (zips for reg.ru manual upload)
+neuro32-*.zip
+artifacts/**/neuro32-*.zip
+artifacts/**/dist/
+artifacts/**/playwright-report/
+artifacts/**/test-results/
+
+# Stray debug files
+*.tmp.mjs
+*.tmp.ts
+**/verify-*-tmp.mjs

@@ -1,14 +1,16 @@
 import { usePageMeta } from '../hooks/usePageMeta';
 import Roadmap from '../components/Roadmap';
-import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap } from '../components/ProgramBlocks';
+import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, ProgramRoadmap, CourseJsonLd } from '../components/ProgramBlocks';
+import OutcomesGallery from '../components/OutcomesGallery';
 import type { Phase } from '../components/Roadmap';
 import type { RoadmapPhase } from '../components/ProgramBlocks';
+import { Bot, Mail, Brain, Target, BarChart2, CheckCircle2 } from 'lucide-react';
 
 const MILESTONE_PHASES: RoadmapPhase[] = [
   { num: '01', title: 'Инструменты', sub: 'Занятия 1–8', milestone: 'Экономишь 3+ часа в неделю', skills: ['ChatGPT', 'Notion AI', 'Gamma'], type: 'theory' },
   { num: '02', title: 'Автоматизация', sub: 'Занятия 9–16', milestone: 'Make.com-сценарий в рабочем процессе', skills: ['Make.com', 'CRM'], type: 'practice' },
   { num: '03', title: 'Медиа и контент', sub: 'Занятия 17–24', milestone: 'Личный медиа-продукт с ElevenLabs', skills: ['ElevenLabs', 'HeyGen'], type: 'practice' },
-  { num: '04', title: 'Итог', sub: 'Занятия 25–32', milestone: 'Сертификат практика 🏆', skills: ['Питч'], type: 'project' },
+  { num: '04', title: 'Итог', sub: 'Занятия 25–32', milestone: 'Сертификат практика', skills: ['Питч'], type: 'project' },
 ];
 
 const PHASES: Phase[] = [
@@ -58,10 +60,10 @@ const PHASES: Phase[] = [
 ];
 
 const PROJECTS = [
-  { icon: '🤖', name: 'ИИ-агент для вашего бизнеса', tool: 'ChatGPT API + Make.com' },
-  { icon: '📨', name: 'Автоответы на входящие Email', tool: 'Make.com + ИИ' },
-  { icon: '🧠', name: 'Умная база знаний команды', tool: 'Notion AI' },
-  { icon: '🎯', name: 'Личный ИИ-проект по выбору', tool: 'Ваши задачи' },
+  { icon: <Bot size={22} className="icon-green" />, name: 'ИИ-агент для вашего бизнеса', tool: 'ChatGPT API + Make.com' },
+  { icon: <Mail size={22} className="icon-green" />, name: 'Автоответы на входящие Email', tool: 'Make.com + ИИ' },
+  { icon: <Brain size={22} className="icon-green" />, name: 'Умная база знаний команды', tool: 'Notion AI' },
+  { icon: <Target size={22} className="icon-green" />, name: 'Личный ИИ-проект по выбору', tool: 'Ваши задачи' },
 ];
 
 const FAQ = [
@@ -76,20 +78,18 @@ const FAQ = [
 
 const RIGHT_COL = (
   <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 180" width="100%" style={{ display: 'block', marginBottom: 20, borderRadius: 20 }} aria-label="Взрослые работают эффективнее с ИИ">
-      <rect width="380" height="180" rx="16" fill="#0d0d1f"/>
-      <rect x="30" y="30" width="320" height="40" rx="8" fill="rgba(45,158,107,.06)" stroke="rgba(45,158,107,.15)" strokeWidth="1"/>
-      <rect x="40" y="40" width="100" height="8" rx="2" fill="rgba(45,158,107,.25)"/>
-      <rect x="40" y="53" width="180" height="6" rx="2" fill="rgba(255,255,255,.06)"/>
-      <text x="340" y="56" textAnchor="middle" fontSize="14" fill="#2d9e6b">✓</text>
-      <rect x="30" y="80" width="140" height="40" rx="8" fill="rgba(240,165,0,.06)" stroke="rgba(240,165,0,.15)" strokeWidth="1"/>
-      <rect x="40" y="90" width="70" height="7" rx="2" fill="rgba(240,165,0,.3)"/>
-      <rect x="40" y="102" width="100" height="5" rx="2" fill="rgba(255,255,255,.06)"/>
-      <rect x="210" y="80" width="140" height="40" rx="8" fill="rgba(74,124,255,.06)" stroke="rgba(74,124,255,.15)" strokeWidth="1"/>
-      <rect x="220" y="90" width="80" height="7" rx="2" fill="rgba(74,124,255,.3)"/>
-      <rect x="220" y="102" width="100" height="5" rx="2" fill="rgba(255,255,255,.06)"/>
-      <text x="190" y="152" textAnchor="middle" fontSize="9" fill="rgba(45,158,107,.5)" fontFamily="monospace">3–5 ЧАСОВ ЭКОНОМИИ В НЕДЕЛЮ</text>
-    </svg>
+    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 20, border: '1px solid rgba(45,158,107,.2)' }}>
+      <picture>
+        <source srcSet="/gen/adults-bg.webp" type="image/webp" />
+        <img src="/gen/adults-bg.jpg" alt="ИИ для взрослых" width={1600} height={700} style={{ display: 'block', width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', aspectRatio: '1600/700' }} loading="lazy" decoding="async" />
+      </picture>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(10,10,24,.5) 0%, rgba(10,10,24,.2) 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['🧠 ChatGPT', '⚡ Make.com', '📝 Notion AI'].map((t) => (
+          <span key={t} style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: '#fff', background: 'rgba(45,158,107,.2)', border: '1px solid rgba(45,158,107,.35)', borderRadius: 6, padding: '4px 9px', backdropFilter: 'blur(8px)' }}>{t}</span>
+        ))}
+      </div>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
       {[
         { text: 'Тексты и отчёты в 10× быстрее' },
@@ -98,7 +98,7 @@ const RIGHT_COL = (
         { text: 'Навык, который сложно скопировать' },
       ].map((it, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, padding: '10px 12px' }}>
-          <span style={{ color: 'var(--emerald)', fontWeight: 700, fontSize: '.82rem' }}>✓</span>
+          <CheckCircle2 size={15} style={{ color: 'var(--emerald)', flexShrink: 0 }} />
           <span style={{ fontSize: '.8rem', color: 'var(--t2)', lineHeight: 1.4 }}>{it.text}</span>
         </div>
       ))}
@@ -110,16 +110,26 @@ export default function Adults({ onEnroll }: { onEnroll?: (p?: string) => void }
   usePageMeta('ИИ для взрослых 18+', 'Офлайн-занятия по ИИ для взрослых в Новозыбкове. ChatGPT, Make.com, Notion AI. Экономия 3–5 часов в неделю. 32 занятия · 8 500 ₽/мес.', '/adults');
   return (
     <div>
+      <CourseJsonLd
+        name="ИИ для взрослых 18+"
+        description="Офлайн-курс ИИ-практик для взрослых: ChatGPT, Make.com, Notion AI. 32 занятия за 4 месяца — автоматизация рутины и экономия 3–5 часов в неделю."
+        url="https://xn--32-mlcqsin.xn--p1ai/adults"
+        price={8500}
+        sessions={32}
+        weeks={16}
+        level="Intermediate"
+        audience="Adult"
+      />
       <ProgramHero
         badge="Для взрослых · 18+"
         headline={
-          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16 }}>
-            <span style={{ marginRight: 8 }}>📊</span>ИИ КАК <span style={{ color: 'var(--amber)' }}>ПРЕИМУЩЕСТВО</span>
+          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <BarChart2 size={32} style={{ color: 'var(--emerald)' }} />ИИ КАК <span style={{ color: 'var(--amber)' }}>ПРЕИМУЩЕСТВО</span>
           </h1>
         }
         description="Уже после 8 занятий вы начнёте экономить 3–5 часов в неделю. Тексты, отчёты, презентации, рутина — ИИ возьмёт это на себя, пока вы занимаетесь тем, что важно."
         chips={<>
-          <span className="chip ch-green" style={{ fontWeight: 600 }}>🟢 Набор открыт · Старт 4 мая</span>
+          <span className="chip ch-green" style={{ fontWeight: 600 }}>Набор открыт · Запись на пробное</span>
           <span className="chip ch-green">18+ лет</span>
           <span className="chip ch-amber">32 занятия · 4 мес · 2 раза/нед</span>
           <span className="chip ch-amber">8 500 ₽/мес</span>
@@ -132,7 +142,7 @@ export default function Adults({ onEnroll }: { onEnroll?: (p?: string) => void }
         enrollLabel="Записаться на пробное →"
         onEnroll={onEnroll}
         shareTitle="ИИ для взрослых 18+ — Нейро 32"
-        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Взрослые 18+. Старт 4 мая."
+        shareText="Офлайн-лаборатория ИИ-практик в Новозыбкове. Взрослые 18+. Набор открыт."
         breadcrumb={[{ label: 'Главная', href: '/' }, { label: 'Программы', href: '/#programs' }, { label: 'ИИ для взрослых 18+' }]}
         progressSteps={['Инструменты', 'Автоматизация', 'Медиа', 'Итог']}
         progressActive={0}
@@ -143,6 +153,8 @@ export default function Adults({ onEnroll }: { onEnroll?: (p?: string) => void }
         promise="Конкретные результаты с вашими реальными задачами. Никаких учебных примеров — только ваши рабочие процессы."
         items={PROJECTS}
       />
+
+      <OutcomesGallery program="adults" />
 
       <ProgramRoadmap
         phases={MILESTONE_PHASES}
@@ -165,7 +177,7 @@ export default function Adults({ onEnroll }: { onEnroll?: (p?: string) => void }
 
       <ProgramFAQ items={FAQ} />
 
-      <style>{`@media(max-width:768px){.prog-hero-grid{grid-template-columns:1fr!important;padding:40px 24px!important;}}`}</style>
+
     </div>
   );
 }

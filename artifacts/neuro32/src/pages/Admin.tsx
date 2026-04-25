@@ -1,59 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  BarChart2, TrendingUp, Calendar, Users, Building2, Inbox,
+  UserCircle2, Tag, FileEdit, Megaphone, Search, Home, LogOut,
+} from 'lucide-react';
+import {
+  PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line
 } from 'recharts';
-import { store, ClassSession } from '../lib/store';
+import { store } from '../lib/store';
+import {
+  useListApplications, useUpdateApplication,
+  useListUsers, useDeleteUser,
+  useListClassSessions, useCreateClassSession, useDeleteClassSession,
+  updateUser,
+  getListApplicationsQueryKey, getListUsersQueryKey, getListClassSessionsQueryKey,
+  type ClassSession,
+} from '@workspace/api-client-react';
+import { useCurrentUser } from '../lib/auth-context';
+import { usePageMeta } from '../hooks/usePageMeta';
+import { EmptyState, LoadingState } from '../components/StateViews';
+import { usePricing, DEFAULT_PRICES } from '../hooks/usePricing';
 
-type Tab = 'stats' | 'requests' | 'users' | 'prices' | 'analytics' | 'content' | 'marketing' | 'schedule' | 'groups' | 'business';
+type Tab = 'stats' | 'requests' | 'users' | 'prices' | 'analytics' | 'content' | 'marketing' | 'schedule' | 'groups' | 'business' | 'audit';
 
-const PRICES_INIT = [
-  { dir: 'Дети 7–12 лет', price: '5 500', per: 'мес' },
-  { dir: 'Подростки 13–17', price: '7 000', per: 'мес' },
-  { dir: 'Взрослые 18+', price: '8 500', per: 'мес' },
-  { dir: 'Кибербезопасность', price: '11 000', per: 'мес' },
-  { dir: 'Пробное занятие', price: '500', per: 'раз' },
+// Maps the admin-visible direction label to the tier key the /api/pricing
+// endpoint speaks. Stays in lockstep with `PricingTiers` in usePricing.ts.
+const PRICE_ROWS: Array<{ tier: 'kids' | 'teens' | 'adults' | 'cyber' | 'trial'; dir: string; per: string }> = [
+  { tier: 'kids',   dir: 'Дети 7–12 лет',     per: 'мес' },
+  { tier: 'teens',  dir: 'Подростки 13–17',   per: 'мес' },
+  { tier: 'adults', dir: 'Взрослые 18+',      per: 'мес' },
+  { tier: 'cyber',  dir: 'Кибербезопасность', per: 'мес' },
+  { tier: 'trial',  dir: 'Пробное занятие',   per: 'раз' },
 ];
 
-const REVENUE_DATA = [
-  { month: 'Янв', revenue: 34000, students: 4 },
-  { month: 'Фев', revenue: 42500, students: 5 },
-  { month: 'Мар', revenue: 51000, students: 6 },
-  { month: 'Апр', revenue: 68000, students: 8 },
-  { month: 'Май', revenue: 85000, students: 10 },
-];
-
-const REGISTRATIONS_BY_DAY = [
-  { day: '25 апр', reg: 1 },
-  { day: '26 апр', reg: 0 },
-  { day: '27 апр', reg: 2 },
-  { day: '28 апр', reg: 1 },
-  { day: '29 апр', reg: 3 },
-  { day: '30 апр', reg: 1 },
-  { day: '4 мая', reg: 2 },
-];
-
-const REQUESTS_BY_DIR = [
-  { dir: 'Дети 7–12', requests: 7 },
-  { dir: 'Подростки', requests: 5 },
-  { dir: 'Взрослые', requests: 9 },
-  { dir: 'Кибер', requests: 4 },
-];
-
-const CONVERSION_DATA = [
-  { month: 'Фев', leads: 12, enrolled: 5, pct: 42 },
-  { month: 'Мар', leads: 18, enrolled: 6, pct: 33 },
-  { month: 'Апр', leads: 24, enrolled: 8, pct: 33 },
-  { month: 'Май', leads: 31, enrolled: 10, pct: 32 },
-];
-
-const REQUESTS_BY_DIR_PIE = [
-  { name: 'Взрослые', value: 4, color: '#f0a500' },
-  { name: 'Дети', value: 3, color: '#2d9e6b' },
-  { name: 'Подростки', value: 2, color: '#4a7cff' },
-  { name: 'КиберЗащита', value: 1, color: '#e63946' },
-];
+// Analytics datasets are computed at render time from real `users` + `requests`
+// + `payments`. No hard-coded demo numbers — if there's nothing to show we
+// display an empty state instead of faking progress.
 
 const TOOLTIP_STYLE = {
   background: '#16162a', border: '1px solid rgba(255,255,255,.07)', borderRadius: 10,
@@ -69,7 +53,7 @@ const SMM_POSTS = [
   {
     platform: 'Telegram',
     tag: 'Канал·результат',
-    text: `Ученица Марина пришла на занятие с одной задачей: написать продающее письмо клиентам.\n\nЗа 60 минут мы:\n1. Прописали портрет клиента через ChatGPT\n2. Создали 3 варианта письма\n3. A/B тест — выбрали лучшее\n4. Настроили Make.com на автоотправку\n\nВ понедельник — 7 ответов от клиентов. Раньше это занимало 3 часа вручную.\n\n📍 Новозыбков · Коммунистическая, 22А\n🔔 Следующий старт — 4 мая`,
+    text: `Ученица Марина пришла на занятие с одной задачей: написать продающее письмо клиентам.\n\nЗа 60 минут мы:\n1. Прописали портрет клиента через ChatGPT\n2. Создали 3 варианта письма\n3. A/B тест — выбрали лучшее\n4. Настроили Make.com на автоотправку\n\nВ понедельник — 7 ответов от клиентов. Раньше это занимало 3 часа вручную.\n\n📍 Новозыбков · Коммунистическая, 22А\n🔔 Новые группы каждые 4–6 недель`,
   },
   {
     platform: 'ВКонтакте',
@@ -79,14 +63,14 @@ const SMM_POSTS = [
   {
     platform: 'WhatsApp/SMS',
     tag: 'Рассылка·набор',
-    text: `Здравствуйте! Это Степан из Нейро 32.\n\nОткрылся новый набор на май 2026. Осталось 3 места.\n\nЕсли вы (или ваш ребёнок) хотели попробовать ИИ-инструменты — сейчас хороший момент.\n\nПробное занятие — 500 ₽. Засчитывается в абонемент.\n\nОтвечу на любой вопрос: @DSM1322`,
+    text: `Здравствуйте! Это Степан из Нейро 32.\n\nОткрылся новый набор. Осталось несколько мест.\n\nЕсли вы (или ваш ребёнок) хотели попробовать ИИ-инструменты — сейчас хороший момент.\n\nПробное занятие — 500 ₽. Засчитывается в абонемент.\n\nОтвечу на любой вопрос: @DSM1322`,
   },
 ];
 
 const CONTENT_BLOCKS = [
-  { key: 'hero_badge', label: 'Бейдж в герое', value: 'Набор открыт · 3 места · Старт 4 мая 2026' },
+  { key: 'hero_badge', label: 'Бейдж в герое', value: 'Набор открыт · Новые группы каждые 4–6 недель' },
   { key: 'trial_price', label: 'Цена пробного', value: '500 ₽' },
-  { key: 'next_start', label: 'Дата старта', value: '4 мая 2026' },
+  { key: 'next_start', label: 'Дата старта', value: '' },
   { key: 'slots_left', label: 'Свободных мест', value: '3' },
   { key: 'address', label: 'Адрес', value: 'ул. Коммунистическая, 22А' },
   { key: 'phone', label: 'Телефон', value: '+7 (901) 976-98-10' },
@@ -133,24 +117,37 @@ function formatDate(iso: string) {
 }
 
 export default function Admin() {
+  usePageMeta('Админ-панель', 'Панель администратора Нейро 32: заявки, пользователи, расписание, аналитика.');
   const [, navigate] = useLocation();
-  const user = store.getCurrentUser();
+  const { user, logout: authLogout, isLoading: authLoading } = useCurrentUser();
+  const qc = useQueryClient();
   const [tab, setTab] = useState<Tab>('stats');
-  const [requests, setRequests] = useState(store.getRequests());
-  const [prices, setPrices] = useState(PRICES_INIT);
+  // Live prices, fetched from /api/pricing and stored as raw integers per
+  // tier. Falls back to DEFAULT_PRICES (5500/7000/...) until the API responds
+  // so the inputs aren't blank on first paint.
+  const { data: livePricing = DEFAULT_PRICES } = usePricing();
+  const [pricesDraft, setPricesDraft] = useState<Record<string, number>>(livePricing);
   const [pricesSaved, setPricesSaved] = useState(false);
+  const [pricesError, setPricesError] = useState('');
+  const [pricesSaving, setPricesSaving] = useState(false);
+  // Sync draft with server data when the query resolves.
+  useEffect(() => { setPricesDraft(livePricing); }, [livePricing]);
   const [contentBlocks, setContentBlocks] = useState(CONTENT_BLOCKS);
   const [contentSaved, setContentSaved] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-  const [users, setUsers] = useState(store.getUsers());
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const aiMsgs = store.getAIMessages();
 
   // Schedule state
-  const [classSessions, setClassSessions] = useState(store.getClassSessions());
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newSession, setNewSession] = useState<Omit<ClassSession, 'id'>>({ date: '', time: '16:00', direction: 'Дети', topic: '' });
+  const [newSession, setNewSession] = useState<{ date: string; time: string; direction: string; topic: string }>({ date: '', time: '16:00', direction: 'Дети', topic: '' });
   const [scheduleFilter, setScheduleFilter] = useState<string>('all');
+
+  // Requests table filters + bulk-selection state — for the admin to triage
+  // many applications/day without clicking each row.
+  const [requestStatusFilter, setRequestStatusFilter] = useState<'all' | 'new' | 'processed' | 'declined'>('all');
+  const [requestDirFilter, setRequestDirFilter] = useState<string>('');
+  const [selectedReqIds, setSelectedReqIds] = useState<number[]>([]);
 
   // Groups state
   const [groupMax, setGroupMaxState] = useState(store.getGroupMax());
@@ -160,11 +157,28 @@ export default function Admin() {
   const [bizLoading, setBizLoading] = useState(false);
   const [bizError, setBizError] = useState('');
 
+  // Audit log state
+  const [auditLogs, setAuditLogs] = useState<Array<{ id: number; adminId: number; adminName: string | null; action: string; targetTable: string | null; targetId: number | null; createdAt: string }>>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+
+  // API queries
+  const { data: requests = [] } = useListApplications({ query: { enabled: !!user && user.role === 'admin', staleTime: 30_000 } });
+  const { data: users = [] } = useListUsers({ query: { enabled: !!user && user.role === 'admin', staleTime: 30_000 } });
+  const { data: classSessions = [] } = useListClassSessions({ query: { staleTime: 30_000 } });
+
+  // Mutations
+  const updateAppMutation = useUpdateApplication();
+  const deleteUserMutation = useDeleteUser();
+  const createSessionMutation = useCreateClassSession();
+  const deleteSessionMutation = useDeleteClassSession();
+
+  const apiBase = (import.meta.env.VITE_API_URL as string | undefined) ?? '';
+
   const fetchBusinessInquiries = async () => {
     setBizLoading(true);
     setBizError('');
     try {
-      const res = await fetch('/api/business-inquiry');
+      const res = await fetch(`${apiBase}/api/business-inquiry`, { credentials: 'include' });
       const data = await res.json() as { ok: boolean; data?: BusinessInquiry[]; error?: string };
       if (data.ok && data.data) {
         setBusinessInquiries(data.data);
@@ -178,9 +192,18 @@ export default function Admin() {
     }
   };
 
+  const fetchAuditLogs = async () => {
+    setAuditLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/api/admin/audit-logs`, { credentials: 'include' });
+      if (res.ok) setAuditLogs(await res.json() as typeof auditLogs);
+    } catch { /* silent */ }
+    finally { setAuditLoading(false); }
+  };
+
   const deleteBusinessInquiry = async (id: string) => {
     try {
-      const res = await fetch(`/api/business-inquiry/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${apiBase}/api/business-inquiry/${id}`, { method: 'DELETE', credentials: 'include' });
       const data = await res.json() as { ok: boolean };
       if (data.ok) {
         setBusinessInquiries(prev => prev.filter(i => i.id !== id));
@@ -191,24 +214,50 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (tab === 'business') {
-      fetchBusinessInquiries();
-    }
+    if (tab === 'business') fetchBusinessInquiries();
+    if (tab === 'audit') fetchAuditLogs();
   }, [tab]);
+
+  if (authLoading) return null;
 
   if (!user || user.role !== 'admin') {
     navigate('/auth');
     return null;
   }
 
-  const logout = () => { store.logout(); navigate('/'); };
+  const logout = async () => { await authLogout(); navigate('/'); };
 
-  const updateStatus = (id: string, status: 'new' | 'processed' | 'declined') => {
-    store.updateRequestStatus(id, status);
-    setRequests(store.getRequests());
+  const updateStatus = (id: number, status: 'new' | 'processed' | 'declined') => {
+    updateAppMutation.mutate({ id, data: { status } }, {
+      onSuccess: () => qc.invalidateQueries({ queryKey: getListApplicationsQueryKey() }),
+    });
   };
 
-  const savePrices = () => { setPricesSaved(true); setTimeout(() => setPricesSaved(false), 2000); };
+  const savePrices = async () => {
+    setPricesSaving(true);
+    setPricesError('');
+    try {
+      const res = await fetch(`${apiBase}/api/pricing`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(pricesDraft),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({} as { error?: string }));
+        setPricesError(data.error || `Ошибка ${res.status}`);
+        return;
+      }
+      // Refetch so the draft + global cache stay in sync (LK / Home pricing reflect immediately)
+      qc.invalidateQueries({ queryKey: ['pricing'] });
+      setPricesSaved(true);
+      setTimeout(() => setPricesSaved(false), 2500);
+    } catch (err) {
+      setPricesError(err instanceof Error ? err.message : 'Ошибка сети');
+    } finally {
+      setPricesSaving(false);
+    }
+  };
   const saveContent = () => { setContentSaved(true); setTimeout(() => setContentSaved(false), 2000); };
 
   const copyText = (text: string, idx: number) => {
@@ -217,65 +266,126 @@ export default function Admin() {
     setTimeout(() => setCopiedIdx(null), 2000);
   };
 
-  const handleDeleteUser = (id: string) => {
-    store.deleteUser(id);
-    setUsers(store.getUsers());
+  const handleDeleteUser = (id: number) => {
+    deleteUserMutation.mutate({ id }, {
+      onSuccess: () => qc.invalidateQueries({ queryKey: getListUsersQueryKey() }),
+    });
     setDeleteConfirm(null);
   };
 
   const handleAddSession = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSession.date || !newSession.time || !newSession.topic) return;
-    store.addClassSession(newSession);
-    setClassSessions(store.getClassSessions());
+    createSessionMutation.mutate({ data: newSession }, {
+      onSuccess: () => qc.invalidateQueries({ queryKey: getListClassSessionsQueryKey() }),
+    });
     setNewSession({ date: '', time: '16:00', direction: 'Дети', topic: '' });
     setShowAddForm(false);
   };
 
-  const handleDeleteSession = (id: string) => {
-    store.deleteClassSession(id);
-    setClassSessions(store.getClassSessions());
+  const handleDeleteSession = (id: number) => {
+    deleteSessionMutation.mutate({ id }, {
+      onSuccess: () => qc.invalidateQueries({ queryKey: getListClassSessionsQueryKey() }),
+    });
   };
 
-  const handleUpdateUserGroup = (userId: string, direction: string) => {
-    store.updateUserGroup(userId, direction);
-    setUsers(store.getUsers());
+  const handleUpdateUserGroup = (userId: number, direction: string) => {
+    updateUser(userId, { direction }).then(() => {
+      qc.invalidateQueries({ queryKey: getListUsersQueryKey() });
+    }).catch(() => {});
   };
 
   const filteredSessions = scheduleFilter === 'all'
     ? classSessions
     : classSessions.filter(s => s.direction === scheduleFilter);
 
-  const navItems: Array<{ key: Tab; icon: string; label: string }> = [
-    { key: 'stats', icon: '📊', label: 'Статистика' },
-    { key: 'analytics', icon: '📈', label: 'Аналитика' },
-    { key: 'schedule', icon: '📅', label: 'Расписание' },
-    { key: 'groups', icon: '🏫', label: 'Группы' },
-    { key: 'business', icon: '🏢', label: `Бизнес${businessInquiries.length > 0 ? ` (${businessInquiries.length})` : ''}` },
-    { key: 'requests', icon: '📩', label: `Заявки (${requests.filter(r => r.status === 'new' && !r.isBusinessInquiry).length})` },
-    { key: 'users', icon: '👥', label: 'Пользователи' },
-    { key: 'prices', icon: '💰', label: 'Цены' },
-    { key: 'content', icon: '✏️', label: 'Контент' },
-    { key: 'marketing', icon: '📣', label: 'Маркетинг' },
+  type NavSection = { label: string; items: Array<{ key: Tab; Icon: React.FC<{size?: number}>; label: string; badge?: number }> };
+  const newRequestCount = requests.filter(r => r.status === 'new' && !r.isBusinessInquiry).length;
+  const navSections: NavSection[] = [
+    {
+      label: 'Обзор',
+      items: [
+        { key: 'stats',     Icon: BarChart2,    label: 'Статистика' },
+        { key: 'analytics', Icon: TrendingUp,   label: 'Аналитика' },
+        { key: 'requests',  Icon: Inbox,        label: 'Заявки', badge: newRequestCount },
+        { key: 'users',     Icon: UserCircle2,  label: 'Пользователи' },
+      ],
+    },
+    {
+      label: 'Учёба',
+      items: [
+        { key: 'schedule', Icon: Calendar, label: 'Расписание' },
+        { key: 'groups',   Icon: Users,    label: 'Группы' },
+        { key: 'prices',   Icon: Tag,      label: 'Цены' },
+      ],
+    },
+    {
+      label: 'Продажи',
+      items: [
+        { key: 'business',  Icon: Building2, label: 'Бизнес', badge: businessInquiries.length || undefined },
+        { key: 'marketing', Icon: Megaphone, label: 'Маркетинг' },
+      ],
+    },
+    {
+      label: 'Системное',
+      items: [
+        { key: 'content', Icon: FileEdit, label: 'Контент' },
+        { key: 'audit',   Icon: Search,   label: 'Аудит' },
+      ],
+    },
   ];
 
   return (
-    <div>
-      <div className="admin-layout">
-        <div className="admin-side">
-          <div style={{ padding: '12px 14px', marginBottom: 12 }}>
-            <div style={{ fontFamily: 'var(--fu)', fontSize: '.72rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--amber)', marginBottom: 4 }}>НЕЙРО 32</div>
-            <div style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: 'var(--t4)' }}>Панель администратора</div>
-          </div>
-          {navItems.map(item => (
-            <button key={item.key} className={`admin-ni${tab === item.key ? ' alk' : ''}`} onClick={() => setTab(item.key)}>
-              {item.icon} {item.label}
-            </button>
-          ))}
-          <div style={{ height: 1, background: 'var(--line)', margin: '12px 0' }} />
-          <button className="admin-ni" onClick={() => navigate('/')}>🏠 На сайт</button>
-          <button className="admin-ni" onClick={logout} style={{ color: 'var(--scarlet)' }}>🚪 Выйти</button>
+    <div className="admin-root">
+      {/* Topbar */}
+      <header className="admin-topbar">
+        <div className="admin-topbar-brand">
+          <span style={{ fontFamily: 'var(--fu)', fontWeight: 700, fontSize: '.82rem', letterSpacing: '.08em' }}>
+            НЕЙРО <span style={{ color: 'var(--amber)' }}>32</span>
+          </span>
+          <span className="admin-topbar-badge">Admin</span>
         </div>
+        <div className="admin-topbar-actions">
+          {newRequestCount > 0 && (
+            <button className="admin-topbar-notif" onClick={() => setTab('requests')}>
+              <Inbox size={15} />
+              <span className="admin-topbar-notif-count">{newRequestCount}</span>
+            </button>
+          )}
+          <div className="admin-topbar-user">
+            <div className="admin-topbar-avatar">A</div>
+            <span style={{ fontSize: '.78rem', color: 'var(--t2)' }}>Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <div className="admin-layout">
+        {/* Sidebar */}
+        <aside className="admin-sidebar">
+          {navSections.map(section => (
+            <div key={section.label}>
+              <div className="admin-section-label">{section.label}</div>
+              {section.items.map(({ key, Icon, label, badge }) => (
+                <button
+                  key={key}
+                  className={`admin-nav-item${tab === key ? ' admin-active' : ''}`}
+                  onClick={() => setTab(key)}
+                >
+                  <Icon size={15} />
+                  <span style={{ flex: 1 }}>{label}</span>
+                  {badge ? <span className="admin-badge">{badge}</span> : null}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div className="admin-sidebar-sep" />
+          <button className="admin-nav-item" onClick={() => navigate('/')}>
+            <Home size={15} />На сайт
+          </button>
+          <button className="admin-nav-item" onClick={logout} style={{ color: 'var(--scarlet)' }}>
+            <LogOut size={15} />Выйти
+          </button>
+        </aside>
 
         <div className="admin-content">
 
@@ -297,14 +407,38 @@ export default function Admin() {
                 ))}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-                {[
-                  { l: 'Направление', r: 'Дети (3) · Взрослые (2) · Подростки (1)' },
-                  { l: 'Выручка (демо)', r: '85 000 ₽ / мес (10 учеников)' },
-                  { l: 'Следующий набор', r: '4 мая 2026 · 3 места свободно' },
-                  { l: 'Площадка', r: 'ул. Коммунистическая, 22А · 4 ПК' },
-                ].map((it, i) => (
-                  <div key={i} className="astat" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="astat-l" style={{ fontSize: '.66rem' }}>{it.l}</div>
+                {(() => {
+                  // Build real breakdown from the users list (role=user only).
+                  const dirCounts = new Map<string, number>();
+                  for (const u of users) {
+                    if (u.role !== 'user') continue;
+                    const d = u.direction || 'Не указано';
+                    dirCounts.set(d, (dirCounts.get(d) ?? 0) + 1);
+                  }
+                  const dirBreakdown = Array.from(dirCounts.entries())
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([d, n]) => `${d} (${n})`)
+                    .join(' · ') || '— данных пока нет';
+
+                  // Nearest upcoming class-session from classSessions.
+                  const now = new Date();
+                  const future = classSessions
+                    .filter(s => new Date(s.date + 'T' + (s.time || '00:00')) >= now)
+                    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+                  const nextSession = future[0];
+                  const nextSetLabel = nextSession
+                    ? new Date(nextSession.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'не запланирован';
+
+                  return [
+                    { l: 'Распределение учеников', r: dirBreakdown },
+                    { l: 'Новые заявки', r: `${requests.filter(r => r.status === 'new' && !r.isBusinessInquiry).length} в обработке` },
+                    { l: 'Ближайшее занятие', r: nextSetLabel },
+                    { l: 'Площадка', r: 'ул. Коммунистическая, 22А · 4 ПК' },
+                  ];
+                })().map((it, i) => (
+                  <div key={i} className="astat" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                    <div className="astat-l" style={{ fontSize: '.66rem', flexShrink: 0 }}>{it.l}</div>
                     <div style={{ fontSize: '.82rem', color: 'var(--t2)', textAlign: 'right' }}>{it.r}</div>
                   </div>
                 ))}
@@ -320,103 +454,175 @@ export default function Admin() {
             </>
           )}
 
-          {/* ANALYTICS */}
-          {tab === 'analytics' && (
-            <>
-              <div className="admin-h">Аналитика</div>
+          {/* ANALYTICS — all charts from real data. Empty state when nothing to show. */}
+          {tab === 'analytics' && (() => {
+            // Normalise date helpers
+            const toDate = (v: unknown) => {
+              const d = new Date(String(v));
+              return isNaN(d.getTime()) ? null : d;
+            };
+            const monthKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            const MONTH_NAMES = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
-                {[
-                  { label: 'Выручка (май)', value: '85 000 ₽', delta: '+25%', up: true },
-                  { label: 'Учеников', value: '10', delta: '+2 за мес', up: true },
-                  { label: 'Конверсия', value: '32%', delta: '−1%', up: false },
-                  { label: 'Заявок (май)', value: '31', delta: '+7', up: true },
-                ].map((kpi, i) => (
-                  <div key={i} className="astat" style={{ padding: 18 }}>
-                    <div className="astat-l" style={{ marginBottom: 6 }}>{kpi.label}</div>
-                    <div className="astat-n" style={{ marginBottom: 4 }}>{kpi.value}</div>
-                    <div style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: kpi.up ? 'var(--emerald)' : 'var(--scarlet)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {kpi.up ? '↑' : '↓'} {kpi.delta}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            const studentCount = users.filter(u => u.role === 'user').length;
+            const totalRequests = requests.filter(r => !r.isBusinessInquiry).length;
+            const confirmedRequests = requests.filter(r => !r.isBusinessInquiry && r.status === 'processed').length;
+            const conversionPct = totalRequests > 0 ? Math.round((confirmedRequests / totalRequests) * 100) : 0;
 
-              <div className="astat" style={{ marginBottom: 16, padding: '22px' }}>
-                <div style={{ fontFamily: 'var(--fu)', fontSize: '.66rem', fontWeight: 700, letterSpacing: '.08em', color: '#fff', marginBottom: 2 }}>ЕЖЕМЕСЯЧНАЯ ВЫРУЧКА</div>
-                <div style={{ fontFamily: 'var(--fm)', fontSize: '.58rem', color: 'var(--t4)', marginBottom: 18 }}>Рост за 5 месяцев 2026 · руб.</div>
-                <ResponsiveContainer width="100%" height={160}>
-                  <BarChart data={REVENUE_DATA} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                    <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `${v/1000}k`} />
-                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [`${v.toLocaleString('ru')} ₽`, 'Выручка']} />
-                    <Bar dataKey="revenue" fill="#f0a500" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            // This-month vs previous-month requests
+            const now = new Date();
+            const thisKey = monthKey(now);
+            const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+            const prevKey = monthKey(prevDate);
+            const reqByMonth = (r: { createdAt: string; isBusinessInquiry?: boolean }) => {
+              const d = toDate(r.createdAt);
+              return d ? monthKey(d) : null;
+            };
+            const reqThisMonth = requests.filter(r => !r.isBusinessInquiry && reqByMonth(r) === thisKey).length;
+            const reqPrevMonth = requests.filter(r => !r.isBusinessInquiry && reqByMonth(r) === prevKey).length;
+            const reqDelta = reqThisMonth - reqPrevMonth;
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                <div className="astat" style={{ padding: '22px' }}>
-                  <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>РЕГИСТРАЦИИ ПО ДНЯМ</div>
-                  <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Последние 7 дней</div>
-                  <ResponsiveContainer width="100%" height={140}>
-                    <LineChart data={REGISTRATIONS_BY_DAY} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                      <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 8 }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 9 }} axisLine={false} tickLine={false} allowDecimals={false} />
-                      <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [v, 'Регистраций']} />
-                      <Line type="monotone" dataKey="reg" stroke="#f0a500" strokeWidth={2} dot={{ fill: '#f0a500', r: 3 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+            // Registrations by day (last 14)
+            const days: { day: string; reg: number }[] = [];
+            for (let i = 13; i >= 0; i--) {
+              const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+              const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+              const reg = users.filter(u => {
+                const ud = toDate((u as { createdAt?: string }).createdAt);
+                if (!ud) return false;
+                return `${ud.getFullYear()}-${String(ud.getMonth() + 1).padStart(2, '0')}-${String(ud.getDate()).padStart(2, '0')}` === key;
+              }).length;
+              days.push({ day: d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }), reg });
+            }
 
-                <div className="astat" style={{ padding: '22px' }}>
-                  <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>ЗАЯВКИ ПО НАПРАВЛЕНИЯМ</div>
-                  <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Май 2026</div>
-                  <ResponsiveContainer width="100%" height={140}>
-                    <PieChart>
-                      <Pie data={REQUESTS_BY_DIR} cx="50%" cy="50%" innerRadius={36} outerRadius={56} dataKey="requests" nameKey="dir" paddingAngle={3}>
-                        {REQUESTS_BY_DIR.map((_, idx) => (
-                          <Cell key={idx} fill={['#4a7cff','#f0a500','#2d9e6b','#c5614a'][idx % 4]} />
-                        ))}
-                      </Pie>
-                      <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, name: string) => [v, name]} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                    {REQUESTS_BY_DIR.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t3)' }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: ['#4a7cff','#f0a500','#2d9e6b','#c5614a'][idx % 4], flexShrink: 0 }} />
-                        {item.dir}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            // Requests by direction
+            const dirCounts = new Map<string, number>();
+            for (const r of requests) {
+              if (r.isBusinessInquiry) continue;
+              const d = r.direction || 'Не указано';
+              dirCounts.set(d, (dirCounts.get(d) ?? 0) + 1);
+            }
+            const reqByDir = Array.from(dirCounts.entries()).map(([dir, n]) => ({ dir, requests: n }));
 
-              <div className="astat" style={{ padding: '22px' }}>
-                <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>КОНВЕРСИЯ ЗАЯВКИ → ЗАПИСЬ</div>
-                <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Лиды vs Записавшихся · % конверсии</div>
-                <ResponsiveContainer width="100%" height={160}>
-                  <LineChart data={CONVERSION_DATA} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
-                    <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                    <Tooltip contentStyle={TOOLTIP_STYLE} />
-                    <Line type="monotone" dataKey="leads" stroke="#4a7cff" strokeWidth={2} name="Лидов" dot={{ fill: '#4a7cff', r: 3 }} />
-                    <Line type="monotone" dataKey="enrolled" stroke="#2d9e6b" strokeWidth={2} name="Записалось" dot={{ fill: '#2d9e6b', r: 3 }} />
-                    <Line type="monotone" dataKey="pct" stroke="#f0a500" strokeWidth={2} strokeDasharray="5 3" name="Конверсия %" dot={{ fill: '#f0a500', r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-                <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
-                  {[{ c: '#4a7cff', l: 'Лидов' }, { c: '#2d9e6b', l: 'Записалось' }, { c: '#f0a500', l: 'Конверсия %' }].map((leg, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--fm)', fontSize: '.6rem', color: 'var(--t3)' }}>
-                      <div style={{ width: 16, height: 2, background: leg.c, borderRadius: 1 }} />
-                      {leg.l}
+            // Requests per month (last 6)
+            const monthlyStats: { month: string; leads: number; enrolled: number; pct: number }[] = [];
+            for (let i = 5; i >= 0; i--) {
+              const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+              const key = monthKey(m);
+              const leads = requests.filter(r => !r.isBusinessInquiry && reqByMonth(r) === key).length;
+              const enrolled = requests.filter(r => !r.isBusinessInquiry && r.status === 'processed' && reqByMonth(r) === key).length;
+              monthlyStats.push({
+                month: MONTH_NAMES[m.getMonth()],
+                leads,
+                enrolled,
+                pct: leads > 0 ? Math.round((enrolled / leads) * 100) : 0,
+              });
+            }
+
+            const hasEnoughData = totalRequests > 0 || studentCount > 0;
+
+            return (
+              <>
+                <div className="admin-h">Аналитика</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 18 }}>
+                  {[
+                    { label: 'Учеников', value: String(studentCount) },
+                    { label: `Заявок (${MONTH_NAMES[now.getMonth()]})`, value: String(reqThisMonth), delta: reqDelta !== 0 ? `${reqDelta > 0 ? '+' : ''}${reqDelta} мес/мес` : 'ровно', up: reqDelta >= 0 },
+                    { label: 'Всего заявок', value: String(totalRequests) },
+                    { label: 'Конверсия', value: `${conversionPct}%` },
+                  ].map((kpi, i) => (
+                    <div key={i} className="astat" style={{ padding: 18 }}>
+                      <div className="astat-l" style={{ marginBottom: 6 }}>{kpi.label}</div>
+                      <div className="astat-n" style={{ marginBottom: 4 }}>{kpi.value}</div>
+                      {'delta' in kpi && kpi.delta && (
+                        <div style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: kpi.up ? 'var(--emerald)' : 'var(--scarlet)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {kpi.up ? '↑' : '↓'} {kpi.delta}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
-            </>
-          )}
+
+                {!hasEnoughData ? (
+                  <EmptyState
+                    icon="📊"
+                    title="Данных для графиков пока недостаточно"
+                    description="Графики появятся автоматически, как только накопятся регистрации и заявки за несколько дней."
+                  />
+                ) : (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div className="astat" style={{ padding: '22px' }}>
+                        <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>РЕГИСТРАЦИИ ПО ДНЯМ</div>
+                        <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Последние 14 дней</div>
+                        <ResponsiveContainer width="100%" height={140}>
+                          <LineChart data={days} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                            <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 8 }} axisLine={false} tickLine={false} />
+                            <YAxis tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 9 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number) => [v, 'Регистраций']} />
+                            <Line type="monotone" dataKey="reg" stroke="#f0a500" strokeWidth={2} dot={{ fill: '#f0a500', r: 3 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      <div className="astat" style={{ padding: '22px' }}>
+                        <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>ЗАЯВКИ ПО НАПРАВЛЕНИЯМ</div>
+                        <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Все время</div>
+                        {reqByDir.length === 0 ? (
+                          <div style={{ fontSize: '.82rem', color: 'var(--t3)', padding: '30px 0' }}>Нет данных по направлениям.</div>
+                        ) : (
+                          <>
+                            <ResponsiveContainer width="100%" height={140}>
+                              <PieChart>
+                                <Pie data={reqByDir} cx="50%" cy="50%" innerRadius={36} outerRadius={56} dataKey="requests" nameKey="dir" paddingAngle={3}>
+                                  {reqByDir.map((_, idx) => (
+                                    <Cell key={idx} fill={['#4a7cff','#f0a500','#2d9e6b','#c5614a','#9b6cff','#e0a95b'][idx % 6]} />
+                                  ))}
+                                </Pie>
+                                <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: number, name: string) => [v, name]} />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                              {reqByDir.map((item, idx) => (
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t3)' }}>
+                                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: ['#4a7cff','#f0a500','#2d9e6b','#c5614a','#9b6cff','#e0a95b'][idx % 6], flexShrink: 0 }} />
+                                  {item.dir}
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="astat" style={{ padding: '22px' }}>
+                      <div style={{ fontFamily: 'var(--fu)', fontSize: '.62rem', fontWeight: 700, color: '#fff', marginBottom: 2 }}>КОНВЕРСИЯ ЗАЯВКИ → ЗАПИСЬ</div>
+                      <div style={{ fontFamily: 'var(--fm)', fontSize: '.56rem', color: 'var(--t4)', marginBottom: 16 }}>Последние 6 месяцев · Лиды vs Подтверждено · % конверсии</div>
+                      <ResponsiveContainer width="100%" height={160}>
+                        <LineChart data={monthlyStats} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
+                          <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fill: 'rgba(255,255,255,.22)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                          <Tooltip contentStyle={TOOLTIP_STYLE} />
+                          <Line type="monotone" dataKey="leads" stroke="#4a7cff" strokeWidth={2} name="Лидов" dot={{ fill: '#4a7cff', r: 3 }} />
+                          <Line type="monotone" dataKey="enrolled" stroke="#2d9e6b" strokeWidth={2} name="Обработано" dot={{ fill: '#2d9e6b', r: 3 }} />
+                          <Line type="monotone" dataKey="pct" stroke="#f0a500" strokeWidth={2} strokeDasharray="5 3" name="Конверсия %" dot={{ fill: '#f0a500', r: 3 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                      <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
+                        {[{ c: '#4a7cff', l: 'Лидов' }, { c: '#2d9e6b', l: 'Обработано' }, { c: '#f0a500', l: 'Конверсия %' }].map((leg, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--fm)', fontSize: '.6rem', color: 'var(--t3)' }}>
+                            <div style={{ width: 16, height: 2, background: leg.c, borderRadius: 1 }} />
+                            {leg.l}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            );
+          })()}
 
           {/* SCHEDULE */}
           {tab === 'schedule' && (
@@ -487,9 +693,11 @@ export default function Admin() {
 
               {/* Sessions table */}
               {filteredSessions.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 60, color: 'var(--t4)', fontFamily: 'var(--fm)', fontSize: '.84rem', background: 'rgba(255,255,255,.02)', borderRadius: 14, border: '1px dashed var(--line)' }}>
-                  {scheduleFilter === 'all' ? 'Занятий пока нет. Добавьте первое занятие.' : `Нет занятий по направлению «${scheduleFilter}».`}
-                </div>
+                <EmptyState
+                  icon="📅"
+                  title={scheduleFilter === 'all' ? 'Занятий пока нет' : `Нет занятий по направлению «${scheduleFilter}»`}
+                  description={scheduleFilter === 'all' ? 'Добавьте первое занятие через форму выше.' : 'Попробуйте сменить фильтр или добавить занятие.'}
+                />
               ) : (
                 <div className="admin-table-wrap">
                   <table className="admin-table">
@@ -684,10 +892,11 @@ export default function Admin() {
               )}
 
               {!bizLoading && businessInquiries.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 60, color: 'var(--t4)', fontFamily: 'var(--fm)', fontSize: '.84rem', background: 'rgba(255,255,255,.02)', borderRadius: 14, border: '1px dashed var(--line)' }}>
-                  Бизнес-заявок пока нет.<br />
-                  <span style={{ fontSize: '.72rem', marginTop: 8, display: 'block' }}>Они появятся, когда кто-то заполнит форму в разделе «Нейро 32 для бизнеса» на главной странице.</span>
-                </div>
+                <EmptyState
+                  icon="💼"
+                  title="Бизнес-заявок пока нет"
+                  description="Они появятся, когда кто-то заполнит форму в разделе «Нейро 32 для бизнеса» на главной странице."
+                />
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {businessInquiries.map(inq => (
@@ -750,49 +959,145 @@ export default function Admin() {
             </>
           )}
 
-          {/* REQUESTS */}
-          {tab === 'requests' && (
-            <>
-              <div className="admin-h">Заявки ({requests.filter(r => !r.isBusinessInquiry).length})</div>
-              {requests.filter(r => !r.isBusinessInquiry).length === 0 ? (
-                <div style={{ textAlign: 'center', padding: 60, color: 'var(--t4)', fontFamily: 'var(--fm)', fontSize: '.8rem' }}>
-                  Заявок пока нет. Они появятся после заполнения формы на странице «Контакты».
-                </div>
-              ) : (
-                <div className="admin-table-wrap">
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Дата</th><th>Имя</th><th>Телефон</th><th>Направление</th><th>Формат</th><th>Статус</th><th>Действия</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {requests.filter(r => !r.isBusinessInquiry).map(r => (
-                        <tr key={r.id}>
-                          <td style={{ fontFamily: 'var(--fm)', fontSize: '.7rem', color: 'var(--t4)', whiteSpace: 'nowrap' }}>{r.date}</td>
-                          <td style={{ fontWeight: 600, color: '#fff' }}>{r.name}</td>
-                          <td style={{ fontFamily: 'var(--fm)', fontSize: '.78rem' }}>{r.phone}</td>
-                          <td><span className="chip ch-amber" style={{ fontSize: '.58rem' }}>{r.direction}</span></td>
-                          <td style={{ fontSize: '.78rem' }}>{r.format}</td>
-                          <td>
-                            <span className={`sbdg ${r.status === 'new' ? 'sb-new' : r.status === 'processed' ? 'sb-ok' : 'sb-fr'}`}>
-                              {r.status === 'new' ? 'Новая' : r.status === 'processed' ? 'Обработана' : 'Отклонена'}
-                            </span>
-                          </td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 5 }}>
-                              <button className="btn btn-success btn-sm" style={{ padding: '4px 8px', fontSize: '.58rem' }} onClick={() => updateStatus(r.id, 'processed')}>✓</button>
-                              <button className="btn btn-danger btn-sm" style={{ padding: '4px 8px', fontSize: '.58rem' }} onClick={() => updateStatus(r.id, 'declined')}>✕</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </>
-          )}
+          {/* REQUESTS — with filter + bulk-actions + CSV export */}
+          {tab === 'requests' && (() => {
+            const privateRequests = requests.filter(r => !r.isBusinessInquiry);
+            const filtered = privateRequests
+              .filter(r => requestStatusFilter === 'all' || r.status === requestStatusFilter)
+              .filter(r => !requestDirFilter || r.direction === requestDirFilter)
+              .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+            const allIds = filtered.map(r => r.id);
+            const allSelected = allIds.length > 0 && allIds.every(id => selectedReqIds.includes(id));
+            const toggleOne = (id: number) => setSelectedReqIds(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+            const toggleAll = () => setSelectedReqIds(allSelected ? [] : allIds);
+
+            const bulkUpdate = async (status: 'processed' | 'declined' | 'new') => {
+              if (selectedReqIds.length === 0) return;
+              if (!confirm(`Изменить статус у ${selectedReqIds.length} заявок на «${status === 'processed' ? 'Обработана' : status === 'declined' ? 'Отклонена' : 'Новая'}»?`)) return;
+              for (const id of selectedReqIds) {
+                // Sequential to avoid hammering the API and keep UI state coherent.
+                // eslint-disable-next-line no-await-in-loop
+                await updateStatus(id, status);
+              }
+              setSelectedReqIds([]);
+            };
+
+            const exportCsv = () => {
+              // CSV with UTF-8 BOM so Excel opens it without cp1251 kracozyabry.
+              const rows = filtered.map(r => [
+                r.id,
+                r.createdAt ? new Date(r.createdAt).toLocaleString('ru-RU') : '',
+                r.name,
+                r.phone,
+                r.direction,
+                r.format,
+                r.message ?? '',
+                r.status,
+              ]);
+              const header = ['id','Дата','Имя','Телефон','Направление','Формат','Комментарий','Статус'];
+              const esc = (v: unknown) => `"${String(v).replace(/"/g, '""')}"`;
+              const csv = '\uFEFF' + [header, ...rows].map(r => r.map(esc).join(',')).join('\n');
+              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `neuro32-requests-${new Date().toISOString().slice(0,10)}.csv`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+              URL.revokeObjectURL(url);
+            };
+
+            return (
+              <>
+                <div className="admin-h">Заявки ({privateRequests.length})</div>
+                {privateRequests.length === 0 ? (
+                  <EmptyState
+                    icon="📝"
+                    title="Заявок пока нет"
+                    description="Они появятся после заполнения формы на странице «Контакты»."
+                  />
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <select className="form-sel" style={{ width: 'auto', padding: '8px 12px', fontSize: '.78rem' }} value={requestStatusFilter} onChange={e => setRequestStatusFilter(e.target.value as typeof requestStatusFilter)}>
+                        <option value="all">Все статусы</option>
+                        <option value="new">Только новые</option>
+                        <option value="processed">Обработанные</option>
+                        <option value="declined">Отклонённые</option>
+                      </select>
+                      <select className="form-sel" style={{ width: 'auto', padding: '8px 12px', fontSize: '.78rem' }} value={requestDirFilter} onChange={e => setRequestDirFilter(e.target.value)}>
+                        <option value="">Все направления</option>
+                        {Array.from(new Set(privateRequests.map(r => r.direction))).map(d => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                      <button className="btn btn-ghost btn-sm" onClick={exportCsv}>↓ CSV ({filtered.length})</button>
+                      {selectedReqIds.length > 0 && (
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginLeft: 'auto', padding: '6px 12px', background: 'rgba(240,165,0,.08)', border: '1px solid rgba(240,165,0,.2)', borderRadius: 10 }}>
+                          <span style={{ fontSize: '.78rem', color: 'var(--amber)', fontFamily: 'var(--fm)' }}>Выбрано: {selectedReqIds.length}</span>
+                          <button className="btn btn-success btn-sm" onClick={() => bulkUpdate('processed')}>✓ Обработать</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => bulkUpdate('declined')}>✕ Отклонить</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setSelectedReqIds([])}>Сброс</button>
+                        </div>
+                      )}
+                    </div>
+                    {filtered.length === 0 ? (
+                      <EmptyState icon="🔍" title="Ничего не нашлось по фильтру" description="Сбросьте фильтр или смените направление." />
+                    ) : (
+                      <div className="admin-table-wrap">
+                        <table className="admin-table">
+                          <thead>
+                            <tr>
+                              <th style={{ width: 32 }}>
+                                <input
+                                  type="checkbox"
+                                  checked={allSelected}
+                                  onChange={toggleAll}
+                                  aria-label="Выделить все"
+                                />
+                              </th>
+                              <th>Дата</th><th>Имя</th><th>Телефон</th><th>Направление</th><th>Формат</th><th>Статус</th><th>Действия</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filtered.map(r => (
+                              <tr key={r.id} style={selectedReqIds.includes(r.id) ? { background: 'rgba(240,165,0,.04)' } : undefined}>
+                                <td>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedReqIds.includes(r.id)}
+                                    onChange={() => toggleOne(r.id)}
+                                    aria-label={`Выделить заявку от ${r.name}`}
+                                  />
+                                </td>
+                                <td style={{ fontFamily: 'var(--fm)', fontSize: '.7rem', color: 'var(--t4)', whiteSpace: 'nowrap' }}>{r.createdAt ? new Date(r.createdAt).toLocaleDateString('ru-RU') : '—'}</td>
+                                <td style={{ fontWeight: 600, color: '#fff' }}>{r.name}</td>
+                                <td style={{ fontFamily: 'var(--fm)', fontSize: '.78rem' }}>
+                                  <a href={`tel:${r.phone}`} style={{ color: 'var(--amber)', textDecoration: 'none' }}>{r.phone}</a>
+                                </td>
+                                <td><span className="chip ch-amber" style={{ fontSize: '.58rem' }}>{r.direction}</span></td>
+                                <td style={{ fontSize: '.78rem' }}>{r.format}</td>
+                                <td>
+                                  <span className={`sbdg ${r.status === 'new' ? 'sb-new' : r.status === 'processed' ? 'sb-ok' : 'sb-fr'}`}>
+                                    {r.status === 'new' ? 'Новая' : r.status === 'processed' ? 'Обработана' : 'Отклонена'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: 5 }}>
+                                    <button className="btn btn-success btn-sm" style={{ padding: '4px 8px', fontSize: '.58rem' }} onClick={() => updateStatus(r.id, 'processed')} title="Отметить обработанной">✓</button>
+                                    <button className="btn btn-danger btn-sm" style={{ padding: '4px 8px', fontSize: '.58rem' }} onClick={() => updateStatus(r.id, 'declined')} title="Отклонить">✕</button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            );
+          })()}
 
           {/* USERS */}
           {tab === 'users' && (
@@ -852,29 +1157,35 @@ export default function Admin() {
             </>
           )}
 
-          {/* PRICES */}
+          {/* PRICES — wired to /api/pricing PATCH; updates propagate live to LK + Home via Tanstack Query invalidation. */}
           {tab === 'prices' && (
             <>
               <div className="admin-h">Редактор цен</div>
-              {pricesSaved && <div style={{ background: 'rgba(45,158,107,.1)', border: '1px solid rgba(45,158,107,.25)', borderRadius: 10, padding: '10px 16px', marginBottom: 20, color: 'var(--emerald)', fontFamily: 'var(--fm)', fontSize: '.82rem' }}>✓ Цены сохранены (демо)</div>}
+              {pricesSaved && <div style={{ background: 'rgba(45,158,107,.1)', border: '1px solid rgba(45,158,107,.25)', borderRadius: 10, padding: '10px 16px', marginBottom: 20, color: 'var(--emerald)', fontFamily: 'var(--fm)', fontSize: '.82rem' }}>✓ Сохранено и применено на сайте</div>}
+              {pricesError && <div style={{ background: 'rgba(220,38,38,.1)', border: '1px solid rgba(220,38,38,.25)', borderRadius: 10, padding: '10px 16px', marginBottom: 20, color: '#f87171', fontFamily: 'var(--fm)', fontSize: '.82rem' }}>{pricesError}</div>}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-                {prices.map((p, i) => (
-                  <div key={i} className="astat" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <div style={{ flex: 1, fontWeight: 600, color: '#fff', fontSize: '.9rem' }}>{p.dir}</div>
+                {PRICE_ROWS.map(row => (
+                  <div key={row.tier} className="astat" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ flex: 1, fontWeight: 600, color: '#fff', fontSize: '.9rem' }}>{row.dir}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <input
-                        value={p.price}
-                        onChange={e => setPrices(ps => ps.map((pp, j) => j === i ? { ...pp, price: e.target.value } : pp))}
-                        style={{ width: 100, background: 'rgba(255,255,255,.05)', border: '1.5px solid var(--line)', borderRadius: 8, padding: '8px 12px', fontFamily: 'var(--fu)', fontSize: '.9rem', color: '#fff', outline: 'none', textAlign: 'right' }}
+                        type="number"
+                        min={0}
+                        max={1_000_000}
+                        value={pricesDraft[row.tier] ?? 0}
+                        onChange={e => setPricesDraft(p => ({ ...p, [row.tier]: Number(e.target.value.replace(/\D/g, '')) || 0 }))}
+                        style={{ width: 110, background: 'rgba(255,255,255,.05)', border: '1.5px solid var(--line)', borderRadius: 8, padding: '8px 12px', fontFamily: 'var(--fu)', fontSize: '.9rem', color: '#fff', outline: 'none', textAlign: 'right' }}
                       />
-                      <span style={{ color: 'var(--t4)', fontSize: '.84rem' }}>₽ / {p.per}</span>
+                      <span style={{ color: 'var(--t4)', fontSize: '.84rem' }}>₽ / {row.per}</span>
                     </div>
                   </div>
                 ))}
               </div>
-              <button className="btn btn-amber" onClick={savePrices}>Сохранить цены →</button>
+              <button className="btn btn-amber" onClick={savePrices} disabled={pricesSaving}>
+                {pricesSaving ? 'Сохраняю…' : 'Сохранить цены →'}
+              </button>
               <p style={{ marginTop: 12, fontFamily: 'var(--fm)', fontSize: '.64rem', color: 'var(--t4)' }}>
-                Примечание: в этой демо-версии цены сохраняются только в памяти.
+                Изменения применяются сразу на главной, в /offer и в личном кабинете (через `usePricing()`).
               </p>
             </>
           )}
@@ -971,13 +1282,13 @@ export default function Admin() {
                     },
                     {
                       tag: 'Срочность', platform: 'SMS · WhatsApp',
-                      hook: '🔴 Осталось 3 места в группу. Набор закрывается 4 мая.',
-                      body: 'Нейро 32 — офлайн-лаборатория ИИ-практик в Новозыбкове. Старт — 4 мая. Пробный урок: 500 ₽ → @DSM1322',
+                      hook: '🔴 Осталось 3 места в ближайшую группу.',
+                      body: 'Нейро 32 — офлайн-лаборатория ИИ-практик в Новозыбкове. Новые группы каждые 4–6 недель. Пробный урок: 500 ₽ → @DSM1322',
                     },
                     {
                       tag: 'Идентичность', platform: 'ВКонтакте · Instagram',
                       hook: 'Пока одни смотрят видео про ИИ — другие уже работают с ним.',
-                      body: 'Нейро 32 — место, где подростки 13–17 лет осваивают нейросети на практике. Первый урок — 500 ₽. Старт 4 мая.',
+                      body: 'Нейро 32 — место, где подростки 13–17 лет осваивают нейросети на практике. Первый урок — 500 ₽. Набор открыт.',
                     },
                   ].map((h, i) => (
                     <div key={i} style={{ background: 'rgba(240,165,0,.04)', border: '1px solid rgba(240,165,0,.15)', borderRadius: 14, overflow: 'hidden' }}>
@@ -1022,8 +1333,53 @@ export default function Admin() {
             </>
           )}
 
+          {tab === 'audit' && (
+            <>
+              <div className="admin-h">Аудит действий администраторов</div>
+              {auditLoading ? (
+                <LoadingState title="Загружаем журнал…" />
+              ) : auditLogs.length === 0 ? (
+                <EmptyState
+                  icon="📋"
+                  title="Записей пока нет"
+                  description="Журнал наполняется автоматически при действиях администратора."
+                />
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.78rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--line)', color: 'var(--t3)', textAlign: 'left' }}>
+                        <th style={{ padding: '8px 12px' }}>Время</th>
+                        <th style={{ padding: '8px 12px' }}>Администратор</th>
+                        <th style={{ padding: '8px 12px' }}>Действие</th>
+                        <th style={{ padding: '8px 12px' }}>Цель</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {auditLogs.map(log => (
+                        <tr key={log.id} style={{ borderBottom: '1px solid var(--line)' }}>
+                          <td style={{ padding: '8px 12px', color: 'var(--t3)', fontFamily: 'var(--fm)', fontSize: '.7rem' }}>
+                            {formatDate(log.createdAt)}
+                          </td>
+                          <td style={{ padding: '8px 12px', color: 'var(--t2)' }}>{log.adminName ?? `ID ${log.adminId ?? '—'}`}</td>
+                          <td style={{ padding: '8px 12px' }}>
+                            <span className="chip ch-amber" style={{ fontSize: '.62rem' }}>{log.action}</span>
+                          </td>
+                          <td style={{ padding: '8px 12px', color: 'var(--t3)', fontFamily: 'var(--fm)', fontSize: '.7rem' }}>
+                            {log.targetTable ? `${log.targetTable} #${log.targetId}` : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+
         </div>
       </div>
     </div>
   );
 }
+

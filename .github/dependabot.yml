@@ -1,0 +1,63 @@
+# Automated security and dependency updates.
+# Dependabot opens PRs against `main` for npm packages whenever a new
+# release is available — security advisories first, version bumps weekly.
+# Each PR runs the existing CI workflow (lint/typecheck/test/build/e2e),
+# so unsafe updates fail before merge.
+#
+# Why a single ecosystem entry covers the whole monorepo: pnpm workspaces
+# share one lockfile at the repo root. Dependabot picks up every workspace
+# package automatically when `package-ecosystem: npm` points at `/`.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "07:00"
+      timezone: Europe/Moscow
+    open-pull-requests-limit: 5
+    # Group routine deps into one PR so the queue doesn't drown — security
+    # advisories still get their own PR by default.
+    groups:
+      production-dependencies:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      development-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: deps
+      include: scope
+    labels:
+      - dependencies
+    # Don't auto-bump these unless it's a security advisory: changing them
+    # is a deliberate decision (major version, new APIs).
+    ignore:
+      - dependency-name: react
+        update-types: [version-update:semver-major]
+      - dependency-name: react-dom
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: vite
+        update-types: [version-update:semver-major]
+      - dependency-name: drizzle-orm
+        update-types: [version-update:semver-major]
+
+  # GitHub Actions versions also drift over time. Weekly bump keeps the
+  # workflow on supported runners and patched action versions.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - github-actions

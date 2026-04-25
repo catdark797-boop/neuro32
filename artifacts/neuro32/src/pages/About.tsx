@@ -5,12 +5,18 @@ export default function About({ onEnroll }: { onEnroll?: (p?: string) => void })
   return (
     <div>
       {/* FULL-HEIGHT HERO WITH PHOTO */}
+      <div style={{ position: 'relative', overflow: 'hidden' }}>
+        <picture>
+          <source srcSet="/gen/about-bg.webp" type="image/webp" />
+          <img src="/gen/about-bg.jpg" alt="" aria-hidden="true" width={1600} height={1067} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.06, pointerEvents: 'none' }} decoding="async" />
+        </picture>
       <section style={{
         minHeight: 'calc(100vh - var(--nav-h))',
         display: 'flex', alignItems: 'center',
         padding: '80px 48px',
         maxWidth: 1280, margin: '0 auto',
         gap: 64,
+        position: 'relative', zIndex: 1,
       }} className="about-hero-section">
         {/* LEFT: Photo */}
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
@@ -20,7 +26,7 @@ export default function About({ onEnroll }: { onEnroll?: (p?: string) => void })
             boxShadow: '0 24px 80px rgba(0,0,0,.5)',
             position: 'relative',
           }}>
-            <img src="/denis.jpg" alt="Степан Денис — основатель Нейро 32, ИИ-практик" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} width="320" height="420" />
+            <img src="/denis.jpg" alt="Степан Денис — основатель Нейро 32, ИИ-практик" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} width="320" height="420" decoding="async" fetchPriority="high" />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,18,.6) 0%, transparent 50%)' }} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: 320 }}>
@@ -51,13 +57,14 @@ export default function About({ onEnroll }: { onEnroll?: (p?: string) => void })
           <div style={{ fontFamily: 'var(--fb)', fontSize: '1rem', color: 'var(--t3)', marginBottom: 32 }}>ИИ-практик · с 2022 года · Новозыбков</div>
 
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
-            <span className="chip ch-amber">3+ года практики</span>
-            <span className="chip ch-green">Практик с 2022 года</span>
-            <span className="chip ch-dim">Самозанятый с 2026 года</span>
+            <span className="chip ch-amber">С 2022 года в ИИ</span>
+            <span className="chip ch-green">4 направления курсов</span>
+            <span className="chip ch-dim">Самозанятый (НПД, ИНН 326504606285)</span>
+            <span className="chip ch-dim">Офлайн · Новозыбков</span>
           </div>
 
           <p style={{ fontSize: '1.05rem', color: 'var(--t2)', lineHeight: 1.8, marginBottom: 20 }}>
-            Меня зовут Степан. Я практик — не академический преподаватель. С 2022 года я использую ИИ-инструменты в работе: сначала научился закрывать через них реальные задачи — писать тексты, автоматизировать рутину, генерировать контент. Потом коллеги начали просить «покажи как», и я понял, что хочу передавать этот навык дальше.
+            Меня зовут Степан. Я не преподаю по учебникам — я учу тому, что сам использую каждый день с 2022 года. ChatGPT, Make.com, Python, ElevenLabs — не демки из интернета, а реальные рабочие инструменты. Когда коллеги начали просить «покажи как», я понял, что хочу передавать этот навык дальше.
           </p>
           <p style={{ fontSize: '1.05rem', color: 'var(--t2)', lineHeight: 1.8, marginBottom: 20 }}>
             Сейчас веду 4 направления в Новозыбкове для детей, подростков и взрослых. Принцип один: каждое занятие — конкретный результат. Не слайды и теория, а рабочий инструмент, который вы используете уже завтра.
@@ -94,32 +101,39 @@ export default function About({ onEnroll }: { onEnroll?: (p?: string) => void })
           </div>
         </div>
       </section>
+      </div>
 
-      <style>{`
-        @media(max-width:768px) {
-          .about-hero-section { flex-direction: column !important; padding: 40px 24px !important; }
-          .about-hero-section > div:first-child { width: 100% !important; }
-          .about-hero-section > div:first-child > div:first-child { width: 100% !important; height: 300px !important; }
-          .about-hero-section > div:first-child > div:last-child { width: 100% !important; }
-        }
-      `}</style>
+      {/* В цифрах — only verifiable, code-grounded numbers (no fabricated student
+          counts / hour totals). Each stat traces back to something the visitor
+          can confirm by browsing the site. */}
+      <section className="about-stats">
+        <div className="about-stats-grid">
+          {[
+            { num: '2022', label: 'С этого года в ИИ-практике' },
+            { num: '4', label: 'Направления курсов' },
+            { num: '10+', label: 'Инструментов в обиходе' },
+            { num: '1 на 1', label: 'Степан ведёт занятия лично' },
+          ].map((s, i) => (
+            <div key={i} className="about-stat-card">
+              <div className="about-stat-num">{s.num}</div>
+              <div className="about-stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* INTERNAL LINKING: About → Contact → Packages */}
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 48px', display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <a href="/contact" style={{ flex: 1, minWidth: 220, padding: '20px 24px', background: 'rgba(255,255,255,.03)', border: '1px solid var(--line2)', borderRadius: 16, cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, transition: 'border-color .2s', textDecoration: 'none' }}
-          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(240,165,0,.3)')}
-          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--line2)')}>
-          <div style={{ fontFamily: 'var(--fm)', fontSize: '.58rem', color: 'var(--t4)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Следующий шаг</div>
-          <div style={{ fontFamily: 'var(--fu)', fontSize: '.8rem', fontWeight: 700, color: '#fff' }}>Связаться со Степаном →</div>
-          <div style={{ fontSize: '.8rem', color: 'var(--t3)' }}>Telegram, телефон, адрес лаборатории</div>
-        </a>
-        <a href="/packages" style={{ flex: 1, minWidth: 220, padding: '20px 24px', background: 'rgba(240,165,0,.04)', border: '1px solid rgba(240,165,0,.15)', borderRadius: 16, cursor: 'pointer', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 6, transition: 'border-color .2s', textDecoration: 'none' }}
-          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(240,165,0,.5)')}
-          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'rgba(240,165,0,.15)')}>
-          <div style={{ fontFamily: 'var(--fm)', fontSize: '.58rem', color: 'var(--amber)', letterSpacing: '.1em', textTransform: 'uppercase' }}>Выбрать программу</div>
-          <div style={{ fontFamily: 'var(--fu)', fontSize: '.8rem', fontWeight: 700, color: '#fff' }}>Тарифы и пакеты →</div>
-          <div style={{ fontSize: '.8rem', color: 'var(--t3)' }}>4 направления · от 5 500 ₽/мес</div>
-        </a>
+      {/* CTA — выбрать программу */}
+      <div className="cta-sec-v2" style={{ marginTop: 0 }}>
+        <div className="cta-box-v2">
+          <div className="cta-v2-txt" style={{ position: 'relative', zIndex: 1 }}>
+            <h3>Выберите программу</h3>
+            <p>4 направления для всех возрастов — дети, подростки, взрослые, кибербезопасность. От 5 500 ₽/мес.</p>
+          </div>
+          <div className="cta-v2-btns" style={{ position: 'relative', zIndex: 1 }}>
+            <a href="/packages" className="btn-cta-enroll" style={{ textDecoration: 'none' }}>Посмотреть программы →</a>
+            <button className="btn-cta-dark" onClick={() => onEnroll?.()}>Записаться</button>
+          </div>
+        </div>
       </div>
 
     </div>

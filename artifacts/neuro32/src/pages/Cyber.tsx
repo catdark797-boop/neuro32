@@ -1,18 +1,23 @@
 import { useLocation } from 'wouter';
 import { usePageMeta } from '../hooks/usePageMeta';
 import Roadmap from '../components/Roadmap';
-import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, MatrixCanvas, ProgramRoadmap } from '../components/ProgramBlocks';
+import { ProgramHero, TrustMini, ProjectCardsSection, ProgramFAQ, MatrixCanvas, ProgramRoadmap, CourseJsonLd } from '../components/ProgramBlocks';
+import OutcomesGallery from '../components/OutcomesGallery';
 import type { Phase } from '../components/Roadmap';
 import type { RoadmapPhase } from '../components/ProgramBlocks';
+import { Lock, Globe, Shield, Trophy, CheckCircle2 } from 'lucide-react';
+
+// WCAG AA requires 4.5:1 for normal text. `--emerald` (#10b981) on our dark
+// background only hits ~3.2:1. Using a brighter mint (#34e0a6, ~5.3:1 on
+// rgba(10,10,24)) keeps the cyber-sec green vibe while staying readable.
+const GREEN = '#34e0a6';
+const GREEN_DIM = 'rgba(52,224,166,.25)';
 
 const MILESTONE_PHASES: RoadmapPhase[] = [
-  { num: '01', title: 'Атаки', sub: 'Занятия 1–8', milestone: 'Понимаешь 10 реальных схем взлома', skills: ['Kali Linux', 'DVWA', 'ChatGPT'], accent: '#10b981', type: 'theory' },
-  { num: '02', title: 'Защита', sub: 'Занятия 9–16', milestone: 'Настроен безопасный цифровой периметр', skills: ['Bitwarden', 'VPN', '2FA'], accent: '#10b981', type: 'practice' },
-  { num: '03', title: 'CTF', sub: 'Занятия 17–24', milestone: 'Победа в командном CTF + Сертификат 🏆', skills: ['CTF', 'Криптография'], accent: '#10b981', type: 'project' },
+  { num: '01', title: 'Атаки', sub: 'Занятия 1–8', milestone: 'Понимаешь 10 реальных схем взлома', skills: ['Kali Linux', 'DVWA', 'ChatGPT'], accent: GREEN, type: 'theory' },
+  { num: '02', title: 'Защита', sub: 'Занятия 9–16', milestone: 'Настроен безопасный цифровой периметр', skills: ['Bitwarden', 'VPN', '2FA'], accent: GREEN, type: 'practice' },
+  { num: '03', title: 'CTF', sub: 'Занятия 17–24', milestone: 'Победа в командном CTF + Сертификат', skills: ['CTF', 'Криптография'], accent: GREEN, type: 'project' },
 ];
-
-const GREEN = '#10b981';
-const GREEN_DIM = 'rgba(16,185,129,.25)';
 
 const PHASES: Phase[] = [
   {
@@ -53,10 +58,10 @@ const PHASES: Phase[] = [
 ];
 
 const PROJECTS = [
-  { icon: '🔐', name: 'Защищённый менеджер паролей', tool: 'Bitwarden + 2FA' },
-  { icon: '🌐', name: 'Собственный VPN-сервер', tool: 'Outline / WireGuard' },
-  { icon: '🛡️', name: 'Аудит безопасности своей системы', tool: 'HaveIBeenPwned + VeraCrypt' },
-  { icon: '🏆', name: 'Решение CTF-задачи', tool: 'Kali Linux / DVWA' },
+  { icon: <Lock size={22} style={{ color: GREEN }} />, name: 'Защищённый менеджер паролей', tool: 'Bitwarden + 2FA' },
+  { icon: <Globe size={22} style={{ color: GREEN }} />, name: 'Собственный VPN-сервер', tool: 'Outline / WireGuard' },
+  { icon: <Shield size={22} style={{ color: GREEN }} />, name: 'Аудит безопасности своей системы', tool: 'HaveIBeenPwned + VeraCrypt' },
+  { icon: <Trophy size={22} style={{ color: GREEN }} />, name: 'Решение CTF-задачи', tool: 'Kali Linux / DVWA' },
 ];
 
 const FAQ = [
@@ -71,17 +76,18 @@ const FAQ = [
 
 const CYBER_RIGHT = (
   <>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 180" width="100%" style={{ display: 'block', marginBottom: 20, borderRadius: 20 }} aria-label="Кибербезопасность">
-      <rect width="380" height="180" rx="16" fill="rgba(5,10,13,.95)"/>
-      <polygon points="190,20 255,58 255,112 190,150 125,112 125,58" fill="none" stroke="rgba(16,185,129,.3)" strokeWidth="1.5"/>
-      <polygon points="190,40 240,70 240,106 190,136 140,106 140,70" fill="none" stroke="rgba(16,185,129,.15)" strokeWidth="1"/>
-      <text x="190" y="96" textAnchor="middle" fontSize="28" fill="#10b981">🔒</text>
-      <text x="60" y="80" fontSize="14" fill="rgba(16,185,129,.65)">🛡️</text>
-      <text x="300" y="80" fontSize="14" fill="rgba(16,185,129,.65)">🔑</text>
-      <text x="60" y="120" fontSize="14" fill="rgba(16,185,129,.5)">🕵️</text>
-      <text x="300" y="120" fontSize="14" fill="rgba(16,185,129,.5)">⚡</text>
-      <text x="190" y="163" textAnchor="middle" fontSize="9" fill="rgba(16,185,129,.5)" fontFamily="monospace">ЗАЩИТА · ОБНАРУЖЕНИЕ · РЕАКЦИЯ</text>
-    </svg>
+    <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 20, border: '1px solid rgba(16,185,129,.2)' }}>
+      <picture>
+        <source srcSet="/gen/cyber-bg.webp" type="image/webp" />
+        <img src="/gen/cyber-bg.jpg" alt="Кибербезопасность" width={1600} height={700} style={{ display: 'block', width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', aspectRatio: '1600/700' }} loading="lazy" decoding="async" />
+      </picture>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(5,10,13,.55) 0%, rgba(5,10,13,.2) 100%)' }} />
+      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {['🛡️ VPN', '🔑 Kali Linux', '🕵️ CTF'].map((t) => (
+          <span key={t} style={{ fontFamily: 'var(--fm)', fontSize: '.6rem', color: GREEN, background: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.3)', borderRadius: 6, padding: '4px 9px', backdropFilter: 'blur(8px)' }}>{t}</span>
+        ))}
+      </div>
+    </div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
       {[
         { text: 'Настроить VPN и менеджер паролей' },
@@ -90,7 +96,7 @@ const CYBER_RIGHT = (
         { text: 'Решать CTF-задачи начального уровня' },
       ].map((it, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9, background: 'rgba(16,185,129,.04)', border: `1px solid ${GREEN_DIM}`, borderRadius: 10, padding: '10px 12px' }}>
-          <span style={{ color: GREEN, fontWeight: 700, fontSize: '.82rem' }}>✓</span>
+          <CheckCircle2 size={15} style={{ color: GREEN, flexShrink: 0 }} />
           <span style={{ fontSize: '.8rem', color: 'var(--t2)', lineHeight: 1.4 }}>{it.text}</span>
         </div>
       ))}
@@ -104,17 +110,27 @@ export default function Cyber({ onEnroll }: { onEnroll?: (p?: string) => void })
 
   return (
     <div>
+      <CourseJsonLd
+        name="Цифровая защита (кибербезопасность для подростков 14+)"
+        description="Офлайн-курс по кибербезопасности: VPN, CTF, Kali Linux, защита данных. 24 занятия за 3 месяца. Практика 100% в учебной лаборатории."
+        url="https://xn--32-mlcqsin.xn--p1ai/cyber"
+        price={11000}
+        sessions={24}
+        weeks={12}
+        level="Intermediate"
+        audience="HighSchool"
+      />
       <ProgramHero
         accentColor={GREEN}
         badge={<><span style={{ fontFamily: 'var(--fm)', fontSize: '.62rem', letterSpacing: '.06em' }}>$ </span>Цифровая защита · 14+ лет</>}
         headline={
-          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16 }}>
-            <span style={{ marginRight: 8 }}>🛡️</span>КИБЕР<span style={{ color: GREEN }}>_ЗАЩИТА</span>
+          <h1 style={{ fontFamily: 'var(--fu)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 700, color: '#fff', lineHeight: 1.1, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <Shield size={32} style={{ color: GREEN }} />КИБЕР<span style={{ color: GREEN }}>_ЗАЩИТА</span>
           </h1>
         }
         description="Вы научитесь защищать аккаунты, деньги и данные от реальных угроз 2026 года. Плюс — этичный взлом и CTF-соревнования для тех, кто хочет понять, как работают атаки изнутри."
         chips={<>
-          <span className="chip" style={{ background: 'rgba(16,185,129,.1)', color: GREEN, border: `1px solid ${GREEN_DIM}`, fontWeight: 600 }}>🟢 Набор открыт · Старт 4 мая</span>
+          <span className="chip" style={{ background: 'rgba(16,185,129,.1)', color: GREEN, border: `1px solid ${GREEN_DIM}`, fontWeight: 600 }}>Набор открыт · Запись на пробное</span>
           <span className="chip ch-red">14+ лет</span>
           <span className="chip" style={{ background: 'rgba(16,185,129,.08)', color: GREEN, border: `1px solid ${GREEN_DIM}` }}>24 занятия · 3 мес · 2 раза/нед</span>
           <span className="chip ch-amber">11 000 ₽/мес</span>
@@ -127,7 +143,7 @@ export default function Cyber({ onEnroll }: { onEnroll?: (p?: string) => void })
         enrollLabel="Записаться на пробное →"
         onEnroll={onEnroll}
         shareTitle="Цифровая защита — Нейро 32"
-        shareText="Курс кибербезопасности в Новозыбкове. Kali Linux, VPN, CTF. Старт 4 мая."
+        shareText="Курс кибербезопасности в Новозыбкове. Kali Linux, VPN, CTF. Набор открыт."
         wrapperStyle={{ background: 'linear-gradient(180deg, #050a0d 0%, var(--bg) 100%)' }}
         bgOverlay={<MatrixCanvas />}
         extraCta={
@@ -147,6 +163,8 @@ export default function Cyber({ onEnroll }: { onEnroll?: (p?: string) => void })
         items={PROJECTS}
         accentColor={GREEN}
       />
+
+      <OutcomesGallery program="cyber" />
 
       <ProgramRoadmap
         phases={MILESTONE_PHASES}
@@ -180,7 +198,7 @@ export default function Cyber({ onEnroll }: { onEnroll?: (p?: string) => void })
 
       <ProgramFAQ items={FAQ} accentColor={GREEN} />
 
-      <style>{`@media(max-width:768px){.prog-hero-grid{grid-template-columns:1fr!important;padding:40px 24px!important;}}`}</style>
+
     </div>
   );
 }

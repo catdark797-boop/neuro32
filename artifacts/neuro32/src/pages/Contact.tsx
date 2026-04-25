@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { MapPin, Lightbulb } from 'lucide-react';
 
 const SocVK = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -23,6 +24,13 @@ export default function Contact() {
       setTimeout(() => setCopied(null), 2000);
     });
   };
+
+  // Feature-flagged socials — we DON'T want to ship dead links to VK/YouTube
+  // accounts that have no recent posts ("abandoned account" = first-impression
+  // killer for a paid school). Flip these env flags back on once the accounts
+  // are actively updated.
+  const showVk = import.meta.env.VITE_SHOW_VK_LINK === 'true';
+  const showYoutube = import.meta.env.VITE_SHOW_YOUTUBE_LINK === 'true';
 
   const contacts = [
     {
@@ -61,22 +69,22 @@ export default function Contact() {
       href: 'mailto:d3stemar@yandex.ru',
       copyVal: 'd3stemar@yandex.ru',
     },
-    {
+    ...(showVk ? [{
       key: 'vk',
       icon: <SocVK />,
       label: 'ВКонтакте',
-      value: 'vk.com/DSM1322',
-      href: 'https://vk.com/DSM1322',
-      copyVal: 'https://vk.com/DSM1322',
-    },
-    {
+      value: 'vk.ru/id1071554033',
+      href: 'https://vk.ru/id1071554033',
+      copyVal: 'https://vk.ru/id1071554033',
+    }] : []),
+    ...(showYoutube ? [{
       key: 'youtube',
       icon: <SocYouTube />,
       label: 'YouTube',
       value: 'youtube.com/@DSM1322',
       href: 'https://youtube.com/@DSM1322',
       copyVal: 'https://youtube.com/@DSM1322',
-    },
+    }] : []),
     {
       key: 'addr',
       icon: (
@@ -107,7 +115,7 @@ export default function Contact() {
   return (
     <div>
       <div className="pg-hero">
-        <div className="pg-badge">📍 Контакты</div>
+        <div className="pg-badge"><MapPin size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />Контакты</div>
         <h1>НЕЙРО 32 <span className="accent">В НОВОЗЫБКОВЕ</span></h1>
         <p>Офлайн-лаборатория ИИ-практик. Пишите в Telegram — ответим быстрее всего.</p>
         <div className="prog-meta">
@@ -214,7 +222,7 @@ export default function Contact() {
                 color: 'var(--t2)',
                 lineHeight: 1.7,
               }}>
-                💡 <strong style={{ color: 'var(--amber)' }}>Совет:</strong> Степан отвечает в Telegram быстрее всего — обычно в течение 30 минут в рабочее время.
+                <Lightbulb size={15} style={{ color: 'var(--amber)', verticalAlign: 'middle', marginRight: 6 }} /><strong style={{ color: 'var(--amber)' }}>Совет:</strong> Степан отвечает в Telegram быстрее всего — обычно в течение 30 минут в рабочее время.
               </div>
             </div>
 
@@ -238,6 +246,7 @@ export default function Contact() {
                   height="500"
                   frameBorder="0"
                   allowFullScreen
+                  className="contact-map-iframe"
                   title="Нейро 32 на карте — Новозыбков, Коммунистическая 22А"
                   style={{ display: 'block' }}
                 />
@@ -265,13 +274,6 @@ export default function Contact() {
         </div>
       </section>
 
-      <style>{`
-        @media(max-width: 768px) {
-          .contact-grid-layout {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
 
     </div>
   );
