@@ -1,0 +1,22 @@
+**/node_modules
+**/dist
+**/.turbo
+**/.cache
+**/.local
+**/.expo
+**/.expo-shared
+**/coverage
+**/*.log
+
+# Env files should never be baked into images
+**/.env
+**/.env.*
+
+# VCS / IDE
+.git
+.github
+.vscode
+
+# OS junk
+.DS_Store
+Thumbs.db

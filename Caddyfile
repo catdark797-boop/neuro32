@@ -1,0 +1,14 @@
+{
+  # email for Let's Encrypt (optional but recommended)
+  email {$LETSENCRYPT_EMAIL}
+}
+
+{$DOMAIN} {
+  encode zstd gzip
+  reverse_proxy web:80
+}
+
+{$API_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy api:3000
+}

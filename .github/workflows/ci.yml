@@ -1,0 +1,134 @@
+# Continuous integration for Нейро 32.
+#
+# Runs on every PR and push to main. Does NOT deploy — deploy stays manual
+# until Railway / reg.ru tokens are added to repo secrets (Step 1b later).
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    # Empty `branches:` filter lets the workflow fire on PRs against any
+    # base — useful while the repo's local `main` and GitHub `master`
+    # histories are still being reconciled.
+    branches: ["**"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck libs (build composite dist/)
+        # Builds the lib/* packages with tsc --build so consumers
+        # (api-client-react/dist, api-zod/dist) have their .d.ts files
+        # in place before frontend typecheck resolves imports against
+        # them. Without this step typecheck reports TS6305 "Output file
+        # ... has not been built from source".
+        run: pnpm run typecheck:libs
+
+      - name: Typecheck frontend
+        run: pnpm --filter @workspace/neuro32 run typecheck
+
+      # TODO: enable api-server typecheck once drizzle-orm duplicate-install
+      # is resolved (two versions in pnpm store cause SQL<T> type mismatches).
+      # - name: Typecheck api-server
+      #   run: pnpm --filter @workspace/api-server run typecheck
+
+      - name: Unit tests (api-server)
+        run: pnpm --filter @workspace/api-server test
+
+      - name: Build api-server
+        run: pnpm --filter @workspace/api-server run build
+
+      - name: Build frontend
+        run: pnpm --filter @workspace/neuro32 run build
+        env:
+          # Inject Sentry DSN at build time so prod bundles include it.
+          # Non-prod builds stay lean (init no-ops without DSN).
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_SENTRY_RELEASE: ${{ github.sha }}
+          # SENTRY_AUTH_TOKEN: when present, sentryVitePlugin uploads .map
+          # files to Sentry and then deletes them locally (so the
+          # actions/upload-artifact step never ships them publicly).
+          # Without this secret, the plugin no-ops and the build stays lean
+          # — useful for forks/PRs from contributors without secret access.
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          VITE_YM_ID: ${{ secrets.VITE_YM_ID }}
+
+      - name: Upload frontend artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: neuro32-dist
+          path: artifacts/neuro32/dist/public
+          retention-days: 14
+
+  # ─── E2E (Playwright) ──────────────────────────────────────────────────
+  # Runs the headless chromium suite against `vite preview` of the freshly-
+  # built bundle. All API calls are mocked inside specs (page.route()) so
+  # this never touches Railway and stays deterministic on every PR.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # Cache Playwright browsers — saves ~120 MB download per run.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter @workspace/neuro32 exec playwright install chromium --with-deps
+
+      - name: Run Playwright suite
+        run: pnpm --filter @workspace/neuro32 run e2e
+        env:
+          CI: "1"
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: artifacts/neuro32/playwright-report/
+          retention-days: 14

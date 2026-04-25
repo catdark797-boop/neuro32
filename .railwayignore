@@ -1,0 +1,29 @@
+node_modules
+**/node_modules
+dist
+**/dist
+*.log
+.DS_Store
+coverage
+.nyc_output
+.next
+.vscode
+.idea
+*.tsbuildinfo
+# Frontend build artifacts (not needed for api-server Docker build)
+artifacts/neuro32/dist
+artifacts/neuro32/node_modules
+# Local deploy zips
+*.zip
+neuro32-deploy.zip
+# Chrome/Claude local runtime
+.claude
+# Heavy/irrelevant to Docker build
+.git
+attached_assets
+artifacts/neuro32
+docs
+*.mp4
+*.mov
+*.psd
+backups

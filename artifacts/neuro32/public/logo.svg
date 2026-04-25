@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 48" fill="none">
+  <defs>
+    <radialGradient id="bg-glow" cx="40%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#f0a500" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0a0a12" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="line-ab" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0a500" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#4a7cff" stop-opacity="0.4"/>
+    </linearGradient>
+  </defs>
+  <!-- Mark background -->
+  <rect width="48" height="48" rx="12" fill="#0a0a12"/>
+  <rect width="48" height="48" rx="12" fill="url(#bg-glow)"/>
+  <!-- Neural network edges -->
+  <line x1="24" y1="10" x2="10" y2="38" stroke="url(#line-ab)" stroke-width="1.4"/>
+  <line x1="24" y1="10" x2="38" y2="38" stroke="rgba(240,165,0,0.4)" stroke-width="1.4"/>
+  <line x1="10" y1="38" x2="38" y2="38" stroke="rgba(74,124,255,0.25)" stroke-width="1.4"/>
+  <line x1="24" y1="10" x2="24" y2="28" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <!-- Nodes -->
+  <circle cx="24" cy="10" r="4" fill="#f0a500"/>
+  <circle cx="24" cy="10" r="7" fill="none" stroke="#f0a500" stroke-width="0.8" stroke-opacity="0.3"/>
+  <circle cx="10" cy="38" r="3" fill="#4a7cff"/>
+  <circle cx="38" cy="38" r="3" fill="rgba(255,255,255,0.85)"/>
+  <circle cx="24" cy="28" r="2" fill="rgba(240,165,0,0.6)"/>
+  <!-- Wordmark -->
+  <text x="58" y="19" font-family="'Unbounded',sans-serif" font-weight="700" font-size="10.5" fill="#f0a500" letter-spacing="2.5">НЕЙРО</text>
+  <text x="58" y="37" font-family="'Unbounded',sans-serif" font-weight="700" font-size="17" fill="#ffffff" letter-spacing="0.5">32</text>
+  <line x1="58" y1="40.5" x2="218" y2="40.5" stroke="rgba(240,165,0,0.18)" stroke-width="0.6"/>
+</svg>

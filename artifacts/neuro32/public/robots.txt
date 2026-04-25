@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /lk
+Disallow: /auth
+Disallow: /api/
+
+# Yandex-specific (clean-param to avoid duplicate crawling of tracking params)
+User-agent: Yandex
+Allow: /
+Disallow: /admin
+Disallow: /lk
+Disallow: /auth
+Disallow: /api/
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&ysclid
+Host: xn--32-mlcqsin.xn--p1ai
+
+Sitemap: https://xn--32-mlcqsin.xn--p1ai/sitemap.xml

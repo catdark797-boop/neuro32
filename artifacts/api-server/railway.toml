@@ -1,0 +1,14 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# `set -e` (via -euc) makes any migration failure abort boot — we must never
+# run the server against a stale schema (bit us on Step 5: users.deleted_at
+# was silently missing and login 500'd for everyone).
+# HOME=/tmp gives npx a writable cache dir (non-root appuser can't write to /root).
+startCommand = "sh -euc 'export HOME=/tmp; echo \">>> drizzle-kit push\"; cd /app/lib/db && npx --no-install drizzle-kit push --force --config ./drizzle.config.ts; echo \">>> starting server\"; cd /app && exec node --enable-source-maps ./dist/index.mjs'"
+healthcheckPath = "/api/healthz"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

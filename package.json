@@ -1,40 +1,22 @@
 {
-  "name": "neuro32",
-  "version": "0.1.0",
-  "private": true,
+  "name": "workspace",
+  "version": "0.0.0",
+  "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "preinstall": "node ./scripts/preinstall.mjs",
+    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "typecheck:libs": "tsc --build",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
-  "dependencies": {
-    "@ai-sdk/openai": "^3.0.48",
-    "@libsql/client": "^0.17.2",
-    "@prisma/adapter-libsql": "^7.6.0",
-    "@prisma/client": "^7.6.0",
-    "@tailwindcss/postcss": "^4.2.2",
-    "ai": "^6.0.141",
-    "bcryptjs": "^3.0.3",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.7.0",
-    "next": "16.2.1",
-    "next-auth": "^4.24.13",
-    "prisma": "^7.6.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tailwind-merge": "^3.5.0",
-    "tailwindcss": "^4.2.2",
-    "zod": "^4.3.6"
-  },
+  "private": true,
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.1",
-    "typescript": "^5"
+    "prettier": "^3.8.1",
+    "tsx": "catalog:",
+    "typescript": "~5.9.2"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.60.1",
+    "@tailwindcss/oxide-win32-x64-msvc": "4.2.1",
+    "lightningcss-win32-x64-msvc": "1.31.1"
   }
 }

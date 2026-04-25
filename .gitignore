@@ -1,46 +1,90 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# compiled output
+dist
+tmp
+out-tsc
+*.tsbuildinfo
+.expo
+.expo-shared
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+node_modules
 
-# testing
-/coverage
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 # misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+yarn-error.log
+testem.log
+/typings
+
+# System Files
 .DS_Store
-*.pem
+Thumbs.db
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
 
-# env files (can opt-in for committing if needed)
-.env*
+# Replit
+.cache/
+.local/
 
-# vercel
-.vercel
+# Environment variables — never commit real secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.production.local
+.env.regru
+.env.railway
+.env.sentry
+.env.yandex
+artifacts/**/.env
+artifacts/**/.env.local
+artifacts/**/.env.production.local
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Local Claude harness state — agent-specific config, not portable
+.claude/
+.cursor/
 
-/src/generated/prisma
-prisma/dev.db
-prisma/dev.db-journal
-dev.db
+# Project-local secrets bundles (anything that ends in -secrets.* or .secrets.*)
+*.secrets.*
+*-secrets.*
+secrets/
+
+# Build artefacts (zips for reg.ru manual upload)
+neuro32-*.zip
+artifacts/**/neuro32-*.zip
+artifacts/**/dist/
+artifacts/**/playwright-report/
+artifacts/**/test-results/
+
+# Stray debug files
+*.tmp.mjs
+*.tmp.ts
+**/verify-*-tmp.mjs
+
+# Credential-extraction helper kept for the author's local use only
+scripts/sentry-token.mjs
+
+# One-off admin password reset script (contains plaintext password)
+artifacts/api-server/reset-admin.cjs

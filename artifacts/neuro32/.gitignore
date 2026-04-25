@@ -1,0 +1,18 @@
+# Vite output
+dist/
+
+# Playwright artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Local zips that we ship to reg.ru manually
+neuro32-*.zip
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

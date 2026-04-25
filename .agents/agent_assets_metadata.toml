@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "nGef8DY3Y1PBbwCf47HzD"
+uri = "file://neuro32-deploy.zip"
+type = "unspecified"
+title = "Нейро 32 — готовый сайт (без демо-подсказок)"

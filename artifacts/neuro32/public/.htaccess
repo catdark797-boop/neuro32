@@ -1,0 +1,97 @@
+# SPA fallback for reg.ru Apache hosting.
+# If the requested file/dir exists, serve it (assets, sitemap, etc).
+# Otherwise rewrite to /index.html so the SPA router handles the URL.
+RewriteEngine On
+RewriteBase /
+
+# Force HTTPS — bare http:// requests get a 301 to https:// before any
+# other rule fires. Required for the HSTS header to actually be useful
+# (browsers ignore HSTS over http) and to fix the Mozilla Observatory
+# "redirection" test.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+# Defense-in-depth: even if a .map file slips into the deploy zip, refuse to
+# serve it. Source-maps are uploaded to Sentry only and must never be public.
+# (Build also runs `sourcemap: 'hidden'` + sentryVitePlugin
+# `filesToDeleteAfterUpload`, and scripts/zip-for-regru.mjs strips .map from
+# the zip — this is the third belt.)
+<FilesMatch "\.map$">
+  Require all denied
+</FilesMatch>
+
+# If the request is not for a real file or directory…
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# …and is not an API call (those never hit reg.ru anyway, just safety net)…
+RewriteCond %{REQUEST_URI} !^/api/
+# …then serve the SPA shell.
+RewriteRule ^ /index.html [L]
+
+# Long cache for hashed assets (vite appends -[hash] so they're immutable).
+<FilesMatch "\.(js|css|woff2?|png|jpg|jpeg|webp|svg|avif)$">
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+
+# No caching for the HTML shell so new deploys are picked up instantly.
+<FilesMatch "\.html$">
+  Header set Cache-Control "public, max-age=0, must-revalidate"
+</FilesMatch>
+
+# Compression — try brotli first, fall back to gzip. Both are no-ops on
+# reg.ru if their Apache build doesn't ship the module, so this is safe to
+# deploy regardless. AddOutputFilterByType ensures only text-y mimes get
+# squeezed; binary assets (.woff2, images) are already compressed.
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/javascript application/javascript application/json image/svg+xml application/xml
+</IfModule>
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/xml
+</IfModule>
+
+# ── Security headers ─────────────────────────────────────────────────────
+# Content-Security-Policy — defence against XSS and data exfiltration.
+# Allowlist enumerates every external origin our SPA legitimately talks to:
+#   * Sentry SDK & Y.Metrika both load JS at runtime
+#   * Sentry posts events to ingest.de.sentry.io
+#   * Y.Metrika posts to mc.yandex.ru and counts via image beacon
+#   * Google Fonts CSS comes from googleapis, font files from gstatic
+#   * API calls go to neuro-32-production.up.railway.app (Railway)
+#   * Telegram links open in new tab, no script load — not in CSP
+# 'unsafe-inline' on script-src kept for the small Y.Metrika init snippet
+# in index.html; if it ever gets hashed we should switch to nonce/hash.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://mc.yandex.ru https://*.sentry.io https://browser.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://mc.yandex.ru https://*.sentry.io https://maps.google.com; connect-src 'self' https://*.sentry.io https://*.ingest.de.sentry.io https://*.ingest.sentry.io https://mc.yandex.ru wss://mc.yandex.ru https://api-server-production-0d71.up.railway.app; frame-src 'self' https://mc.yandex.ru; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://api-server-production-0d71.up.railway.app; object-src 'none'; upgrade-insecure-requests"
+
+  # Stops MIME-sniffing attacks where a .jpg becomes interpreted as .html.
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Backstop for older browsers that don't honour CSP frame-ancestors.
+  Header always set X-Frame-Options "DENY"
+
+  # Control how much of the previous URL leaks via Referer header.
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Disable browser features the SPA doesn't use — protects against
+  # malicious 3rd-party iframes if frame-src ever expands.
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+
+  # HSTS — 1 year + preload eligibility. Sent ONLY on HTTPS responses;
+  # browsers ignore HSTS over HTTP and hstspreload.org flags it as
+  # warning if present on the HTTP redirect response. SetEnvIf reads the
+  # X-Forwarded-Proto header set by reg.ru's TLS-terminating proxy; the
+  # IS_HTTPS env then gates the Header directive.
+  SetEnvIf X-Forwarded-Proto "https" IS_HTTPS
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=IS_HTTPS
+
+  # Cross-Origin-Resource-Policy: tightens which origins can embed our
+  # resources (images, fonts) via <img>, <iframe>, etc. `same-site` is the
+  # right balance — blocks cross-site CORS embeds (one defence layer
+  # against Spectre-class attacks), allows our SPA + Sentry SDK to load
+  # everything from xn--32-mlcqsin.xn--p1ai itself.
+  Header always set Cross-Origin-Resource-Policy "same-site"
+
+  # Yandex/Google honour these, though they're advisory.
+  Header always set X-Robots-Tag "index, follow"
+</IfModule>

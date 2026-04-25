@@ -1,0 +1,643 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Нейро 32 API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: applications
+  - name: reviews
+  - name: users
+  - name: sessions
+  - name: settings
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  # Applications
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List all applications (admin)
+      responses:
+        "200":
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Submit an application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApplicationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+
+  /applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update application status (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Reviews
+  /reviews:
+    get:
+      operationId: listReviews
+      tags: [reviews]
+      summary: List reviews
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+    post:
+      operationId: createReview
+      tags: [reviews]
+      summary: Submit a review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+
+  /reviews/{id}:
+    patch:
+      operationId: updateReview
+      tags: [reviews]
+      summary: Update review (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteReview
+      tags: [reviews]
+      summary: Delete review (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Users
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin)
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Class Sessions
+  /class-sessions:
+    get:
+      operationId: listClassSessions
+      tags: [sessions]
+      summary: List class sessions
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClassSession"
+    post:
+      operationId: createClassSession
+      tags: [sessions]
+      summary: Create class session (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClassSessionBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClassSession"
+
+  /class-sessions/{id}:
+    delete:
+      operationId: deleteClassSession
+      tags: [sessions]
+      summary: Delete class session (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Settings
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      summary: Get settings
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+    patch:
+      operationId: updateSettings
+      tags: [settings]
+      summary: Update settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSettingsBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    OkResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        telegram:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        direction:
+          type: string
+        goals:
+          type: string
+        registeredAt:
+          type: string
+      required: [id, name, email, phone, telegram, role, direction, goals, registeredAt]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+      required: [name, email, phone, password]
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        direction:
+          type: string
+        format:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [new, processed, declined]
+        isBusinessInquiry:
+          type: boolean
+        organizationName:
+          type: string
+        businessStatus:
+          type: string
+          enum: [new, in_progress, contracted, declined]
+        createdAt:
+          type: string
+      required: [id, name, phone, direction, format, message, status, isBusinessInquiry, createdAt]
+
+    CreateApplicationBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        direction:
+          type: string
+        format:
+          type: string
+        message:
+          type: string
+        isBusinessInquiry:
+          type: boolean
+        organizationName:
+          type: string
+      required: [name, phone, direction, format, message]
+
+    UpdateApplicationBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [new, processed, declined]
+        businessStatus:
+          type: string
+          enum: [new, in_progress, contracted, declined]
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        role:
+          type: string
+        direction:
+          type: string
+        rating:
+          type: integer
+        text:
+          type: string
+        approved:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, name, role, direction, rating, text, approved, createdAt]
+
+    CreateReviewBody:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        direction:
+          type: string
+        rating:
+          type: integer
+        text:
+          type: string
+      required: [name, role, direction, rating, text]
+
+    UpdateReviewBody:
+      type: object
+      properties:
+        approved:
+          type: boolean
+
+    ClassSession:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        time:
+          type: string
+        direction:
+          type: string
+        topic:
+          type: string
+      required: [id, date, time, direction, topic]
+
+    CreateClassSessionBody:
+      type: object
+      properties:
+        date:
+          type: string
+        time:
+          type: string
+        direction:
+          type: string
+        topic:
+          type: string
+      required: [date, time, direction, topic]
+
+    Settings:
+      type: object
+      properties:
+        groupMax:
+          type: integer
+      required: [groupMax]
+
+    UpdateSettingsBody:
+      type: object
+      properties:
+        groupMax:
+          type: integer
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        telegram:
+          type: string
+        direction:
+          type: string
+        goals:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
