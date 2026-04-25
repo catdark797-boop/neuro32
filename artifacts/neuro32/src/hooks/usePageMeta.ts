@@ -12,7 +12,12 @@ export function usePageMeta(title: string, description: string, _legacyPath?: st
     const prevDesc = descEl?.content || '';
     if (descEl && description) descEl.content = description;
 
-    const canonical = `https://neuro32.ru${window.location.pathname}`;
+    // Canonical: use current origin so punycode/unicode variants both work.
+    // Fallback for SSR / non-browser contexts.
+    const origin =
+      (typeof window !== 'undefined' && window.location?.origin) ||
+      'https://xn--32-mlcqsin.xn--p1ai';
+    const canonical = `${origin}${window.location.pathname}`;
 
     const ogTitle = getProp('og:title');
     const prevOGTitle = ogTitle?.content || '';

@@ -1,4 +1,5 @@
 import { usePageMeta } from '../hooks/usePageMeta';
+import { Info } from 'lucide-react';
 
 const PKGS = [
   {
@@ -108,7 +109,7 @@ export default function Packages({ onEnroll }: { onEnroll?: (p?: string) => void
           gap: 16,
           alignItems: 'flex-start',
         }}>
-          <span style={{ fontSize: '1.1rem', marginTop: 2, flexShrink: 0 }}>ℹ️</span>
+          <Info size={18} className="icon-muted" style={{ marginTop: 2, flexShrink: 0 }} />
           <div>
             <div style={{ fontFamily: 'var(--fu)', fontSize: '.65rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--t2)', marginBottom: 8 }}>О формате и документах</div>
             <p style={{ fontSize: '.85rem', color: 'var(--t3)', lineHeight: 1.7, margin: 0 }}>

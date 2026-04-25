@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Switch, Route, Router as WouterRouter, useLocation } from 'wouter';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import Loader from './components/Loader';
@@ -9,26 +9,32 @@ import AIWidget from './components/AIWidget';
 import EnrollModal from './components/EnrollModal';
 import { analytics } from './lib/analytics';
 import Footer from './components/Footer';
+
+// Eagerly loaded (above-the-fold, critical path)
 import Home from './pages/Home';
-import Kids from './pages/Kids';
-import Teens from './pages/Teens';
-import Adults from './pages/Adults';
-import Cyber from './pages/Cyber';
-import Packages from './pages/Packages';
-import About from './pages/About';
-import Safety from './pages/Safety';
-import Reviews from './pages/Reviews';
-import Contact from './pages/Contact';
-import AISecretary from './pages/AISecretary';
-import Auth from './pages/Auth';
-import AuthCallback from './pages/AuthCallback';
-import LK from './pages/LK';
-import Admin from './pages/Admin';
-import Privacy from './pages/Privacy';
-import Offer from './pages/Offer';
+
+// Lazily loaded pages — split into separate chunks
+const Kids = lazy(() => import('./pages/Kids'));
+const Teens = lazy(() => import('./pages/Teens'));
+const Adults = lazy(() => import('./pages/Adults'));
+const Cyber = lazy(() => import('./pages/Cyber'));
+const Packages = lazy(() => import('./pages/Packages'));
+const About = lazy(() => import('./pages/About'));
+const Safety = lazy(() => import('./pages/Safety'));
+const Reviews = lazy(() => import('./pages/Reviews'));
+const Contact = lazy(() => import('./pages/Contact'));
+const AISecretary = lazy(() => import('./pages/AISecretary'));
+const Auth = lazy(() => import('./pages/Auth'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const LK = lazy(() => import('./pages/LK'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Offer = lazy(() => import('./pages/Offer'));
+const Business = lazy(() => import('./pages/Business'));
 
 function ScrollToTop() {
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); });
+  const [location] = useLocation();
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [location]);
   return null;
 }
 
@@ -59,7 +65,7 @@ function ScrollProgress() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-  return <div id="progress" style={{ width: `${pct}%` }} />;
+  return <div id="progress" style={{ transform: `scaleX(${pct / 100})` }} />;
 }
 
 function RevealObserver() {
@@ -103,32 +109,35 @@ function AnimatedRoutes({ openEnroll, toggleAI }: { openEnroll: (p?: string) => 
   return (
     <AnimatePresence mode="wait">
       <PageTransition key={location}>
-        <Switch>
-          <Route path="/" component={() => <Home onAIToggle={toggleAI} onEnroll={openEnroll} />} />
-          <Route path="/kids" component={() => <Kids onEnroll={openEnroll} />} />
-          <Route path="/teens" component={() => <Teens onEnroll={openEnroll} />} />
-          <Route path="/adults" component={() => <Adults onEnroll={openEnroll} />} />
-          <Route path="/cyber" component={() => <Cyber onEnroll={openEnroll} />} />
-          <Route path="/packages" component={() => <Packages onEnroll={openEnroll} />} />
-          <Route path="/about" component={() => <About onEnroll={openEnroll} />} />
-          <Route path="/safety" component={Safety} />
-          <Route path="/reviews" component={Reviews} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/aisecretary" component={AISecretary} />
-          <Route path="/auth" component={Auth} />
-          <Route path="/auth/callback" component={AuthCallback} />
-          <Route path="/lk" component={LK} />
-          <Route path="/admin" component={Admin} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/offer" component={Offer} />
-          <Route component={() => (
-            <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
-              <div style={{ fontFamily: 'var(--fu)', fontSize: '5rem', color: 'var(--amber)', opacity: .2, fontWeight: 700 }}>404</div>
-              <div style={{ fontFamily: 'var(--fb)', fontSize: '1.8rem', color: '#fff' }}>Страница не найдена</div>
-              <a href={base + '/'} className="btn btn-amber btn-lg">На главную →</a>
-            </div>
-          )} />
-        </Switch>
+        <Suspense fallback={<div style={{ minHeight: '60vh' }} />}>
+          <Switch>
+            <Route path="/" component={() => <Home onAIToggle={toggleAI} onEnroll={openEnroll} />} />
+            <Route path="/kids" component={() => <Kids onEnroll={openEnroll} />} />
+            <Route path="/teens" component={() => <Teens onEnroll={openEnroll} />} />
+            <Route path="/adults" component={() => <Adults onEnroll={openEnroll} />} />
+            <Route path="/cyber" component={() => <Cyber onEnroll={openEnroll} />} />
+            <Route path="/packages" component={() => <Packages onEnroll={openEnroll} />} />
+            <Route path="/about" component={() => <About onEnroll={openEnroll} />} />
+            <Route path="/safety" component={Safety} />
+            <Route path="/reviews" component={Reviews} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/aisecretary" component={AISecretary} />
+            <Route path="/auth" component={Auth} />
+            <Route path="/auth/callback" component={AuthCallback} />
+            <Route path="/lk" component={LK} />
+            <Route path="/admin" component={Admin} />
+            <Route path="/privacy" component={Privacy} />
+            <Route path="/offer" component={Offer} />
+            <Route path="/business" component={() => <Business />} />
+            <Route component={() => (
+              <div style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+                <div style={{ fontFamily: 'var(--fu)', fontSize: '5rem', color: 'var(--amber)', opacity: .2, fontWeight: 700 }}>404</div>
+                <div style={{ fontFamily: 'var(--fb)', fontSize: '1.8rem', color: '#fff' }}>Страница не найдена</div>
+                <a href={base + '/'} className="btn btn-amber btn-lg">На главную →</a>
+              </div>
+            )} />
+          </Switch>
+        </Suspense>
       </PageTransition>
     </AnimatePresence>
   );
@@ -159,6 +168,17 @@ function AppContent() {
       <ScrollProgress />
       {!loaded && <Loader onDone={handleLoaded} />}
       <div style={{ opacity: loaded ? 1 : 0, transition: 'opacity .4s ease', visibility: loaded ? 'visible' : 'hidden' }}>
+        <div className="aurora" aria-hidden="true">
+          <div className="aurora-a" />
+          <div className="aurora-b" />
+          <div className="aurora-c" />
+        </div>
+        <div className="atmos" aria-hidden="true">
+          <div className="atmos-orb o1" />
+          <div className="atmos-orb o2" />
+          <div className="atmos-orb o3" />
+        </div>
+        <div className="atmos-grain" aria-hidden="true" />
         <RevealObserver />
         <Nav onEnroll={openEnroll} />
         <main style={{ paddingTop: 'var(--nav-h)' }}>

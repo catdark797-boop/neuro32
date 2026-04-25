@@ -1,7 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="14" fill="#0a0a12"/>
-  <path d="M14 46 L24 18 L32 38 L40 18 L50 46" stroke="#f0a500" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="32" cy="20" r="3" fill="#f0a500" opacity="0.75"/>
-  <circle cx="14" cy="46" r="3" fill="#f0a500"/>
-  <circle cx="50" cy="46" r="3" fill="#f0a500"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" fill="none">
+  <defs>
+    <radialGradient id="favbg" cx="40%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#f0a500" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0a0a12" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="44" height="44" rx="10" fill="#0a0a12"/>
+  <rect width="44" height="44" rx="10" fill="url(#favbg)"/>
+  <line x1="22" y1="9" x2="10" y2="34" stroke="#f0a500" stroke-opacity="0.55" stroke-width="1.8"/>
+  <line x1="22" y1="9" x2="34" y2="34" stroke="#4a7cff" stroke-opacity="0.5" stroke-width="1.8"/>
+  <line x1="10" y1="34" x2="34" y2="34" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.8"/>
+  <line x1="22" y1="9" x2="22" y2="24" stroke="#f0a500" stroke-opacity="0.3" stroke-width="1.4"/>
+  <circle cx="22" cy="9" r="4.2" fill="#f0a500"/>
+  <circle cx="10" cy="34" r="3.2" fill="#4a7cff"/>
+  <circle cx="34" cy="34" r="3.2" fill="#ffffff"/>
+  <circle cx="22" cy="24" r="2" fill="#f0a500" fill-opacity="0.85"/>
 </svg>

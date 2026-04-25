@@ -21,6 +21,11 @@ async function buildAll() {
     format: "esm",
     outdir: distDir,
     outExtension: { ".js": ".mjs" },
+    // Split dynamic `import()` into separate chunks. Without this, esbuild
+    // inlines them at the top of the main bundle, which means native-addon
+    // imports (sharp) fail at server startup even when the code path is never
+    // reached.
+    splitting: true,
     logLevel: "info",
     // Some packages may not be bundleable, so we externalize them, we can add more here as needed.
     // Some of the packages below may not be imported or installed, but we're adding them in case they are in the future.
@@ -62,7 +67,9 @@ async function buildAll() {
       "@swc/*",
       "@aws-sdk/*",
       "@azure/*",
-      "@opentelemetry/*",
+      // NOTE: @opentelemetry/* kept OUT of externals — @sentry/node needs
+      // @opentelemetry/api bundled into dist/index.mjs. Some OTel sub-packages
+      // use dynamic require, but the ones Sentry needs bundle cleanly.
       "@google-cloud/*",
       "@google/*",
       "googleapis",

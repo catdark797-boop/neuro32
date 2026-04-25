@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { Bot, User } from 'lucide-react';
 
 const TOPICS = [
   { label: 'Цены и оплата', q: 'Сколько стоят занятия и как оплатить?' },
@@ -26,13 +27,13 @@ function smartAnswer(msg: string): string {
 Оплата: СБП на +7 (901) 976-98-10 или наличными. Чек НПД автоматически.`;
   }
   if (m.includes('расписани') || m.includes('записат') || m.includes('старт') || m.includes('когда')) {
-    return `Ближайший старт: **4 мая 2026**. Осталось 3 свободных места!
+    return `Набор открыт в постоянном режиме — новые группы каждые 4–6 недель.
 
 📅 Занятия: 2 раза в неделю, 60–90 минут
 🕐 Время: согласовывается с группой (обычно 16:00–17:30 или 18:00–19:30)
 📍 Место: г. Новозыбков, ул. Коммунистическая, 22А
 
-Для записи свяжитесь со Степаном:
+Для уточнения точной даты ближайшего старта и количества свободных мест свяжитесь со Степаном:
 📱 Telegram: @DSM1322
 📞 +7 (901) 976-98-10`;
   }
@@ -136,7 +137,7 @@ interface Message { role: 'bot' | 'user'; text: string; }
 export default function AISecretary() {
   usePageMeta('ИИ-секретарь', 'Нейра — ИИ-ассистент Нейро 32. Задайте любой вопрос о курсах, ценах и расписании.');
   const [msgs, setMsgs] = useState<Message[]>([
-    { role: 'bot', text: 'Добро пожаловать! Я Нейра 🤖 — ИИ-ассистент лаборатории «Нейро 32». Выберите тему слева или задайте любой вопрос о программах обучения.' }
+    { role: 'bot', text: 'Добро пожаловать! Я Нейра — ИИ-ассистент лаборатории «Нейро 32». Выберите тему слева или задайте любой вопрос о программах обучения.' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -160,14 +161,14 @@ export default function AISecretary() {
   return (
     <div>
       <div className="pg-hero">
-        <div className="pg-badge">🤖 ИИ-ассистент</div>
+        <div className="pg-badge"><Bot size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />ИИ-ассистент</div>
         <h1>НЕЙРА — <span className="accent">ИИ-ПОМОЩНИК</span></h1>
         <p>Задайте любой вопрос о программах, ценах и расписании. Нейра ответит мгновенно.</p>
       </div>
 
       <div className="aip-layout">
         <div className="aip-side">
-          <div className="aip-ava">🤖</div>
+          <div className="aip-ava"><Bot size={28} /></div>
           <div className="aip-name">Нейра</div>
           <div className="aip-status"><div className="aip-sdot" />онлайн · отвечает мгновенно</div>
           <div className="aip-sep" />
@@ -181,13 +182,13 @@ export default function AISecretary() {
           <div className="aip-msgs" ref={msgsRef}>
             {msgs.map((m, i) => (
               <div key={i} className={`ai-msg ${m.role}`}>
-                <div className="ai-ava">{m.role === 'bot' ? '🤖' : '👤'}</div>
+                <div className="ai-ava">{m.role === 'bot' ? <Bot size={18} /> : <User size={18} />}</div>
                 <div className="ai-bubble" style={{ whiteSpace: 'pre-line', maxWidth: '70%' }}>{m.text}</div>
               </div>
             ))}
             {loading && (
               <div className="ai-msg bot">
-                <div className="ai-ava">🤖</div>
+                <div className="ai-ava"><Bot size={18} /></div>
                 <div className="ai-typing"><span /><span /><span /></div>
               </div>
             )}

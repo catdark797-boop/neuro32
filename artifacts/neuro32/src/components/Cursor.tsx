@@ -12,11 +12,18 @@ export default function Cursor() {
     const ring = ringRef.current;
     if (!cur || !ring) return;
 
+    let movePending = false;
     const onMove = (e: MouseEvent) => {
       pos.current.mx = e.clientX;
       pos.current.my = e.clientY;
-      cur.style.left = e.clientX + 'px';
-      cur.style.top = e.clientY + 'px';
+      if (!movePending) {
+        movePending = true;
+        requestAnimationFrame(() => {
+          cur.style.left = pos.current.mx + 'px';
+          cur.style.top = pos.current.my + 'px';
+          movePending = false;
+        });
+      }
     };
 
     const onOver = (e: MouseEvent) => {

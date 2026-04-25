@@ -82,3 +82,9 @@ artifacts/**/test-results/
 *.tmp.mjs
 *.tmp.ts
 **/verify-*-tmp.mjs
+
+# Credential-extraction helper kept for the author's local use only
+scripts/sentry-token.mjs
+
+# One-off admin password reset script (contains plaintext password)
+artifacts/api-server/reset-admin.cjs

@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { z } from 'zod';
 import { store } from '../lib/store';
 
-interface OAuthUser {
-  provider: string;
-  providerId: string;
-  name: string;
-  email: string;
-  avatar: string;
-}
+const OAuthUserSchema = z.object({
+  provider: z.string(),
+  providerId: z.string(),
+  name: z.string().default(''),
+  email: z.string().default(''),
+  avatar: z.string().default(''),
+});
+
+type OAuthUser = z.infer<typeof OAuthUserSchema>;
 
 export default function AuthCallback() {
   const [, navigate] = useLocation();
@@ -29,7 +32,13 @@ export default function AuthCallback() {
       return;
     }
     try {
-      const oauthUser: OAuthUser = JSON.parse(userParam);
+      const parsed = OAuthUserSchema.safeParse(JSON.parse(userParam));
+      if (!parsed.success) {
+        setStatus('error');
+        setTimeout(() => navigate('/auth'), 2500);
+        return;
+      }
+      const oauthUser: OAuthUser = parsed.data;
       const users = store.getUsers();
       const existing = users.find(u => u.email && u.email === oauthUser.email);
       if (existing) {
