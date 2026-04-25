@@ -40,6 +40,14 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck libs (build composite dist/)
+        # Builds the lib/* packages with tsc --build so consumers
+        # (api-client-react/dist, api-zod/dist) have their .d.ts files
+        # in place before frontend typecheck resolves imports against
+        # them. Without this step typecheck reports TS6305 "Output file
+        # ... has not been built from source".
+        run: pnpm run typecheck:libs
+
       - name: Typecheck frontend
         run: pnpm --filter @workspace/neuro32 run typecheck
 
